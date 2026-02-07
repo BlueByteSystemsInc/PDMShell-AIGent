@@ -1,0 +1,166 @@
+<script setup lang="ts">
+import type { DefineComponent } from 'vue'
+import { Chat } from '@ai-sdk/vue'
+import { DefaultChatTransport } from 'ai'
+import type { UIMessage } from 'ai'
+import { useClipboard } from '@vueuse/core'
+import { getTextFromMessage } from '@nuxt/ui/utils/ai'
+import ProseStreamPre from '../../components/prose/PreStream.vue'
+
+const components = {
+  pre: ProseStreamPre as unknown as DefineComponent
+}
+
+const route = useRoute()
+const toast = useToast()
+const clipboard = useClipboard()
+
+const { data, refresh: refreshChat } = await useFetch(`/api/chats/${route.params.id}`, {
+  key: `chat-${route.params.id}`
+})
+if (!data.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Chat not found' })
+}
+
+const pageTitle = computed(() => data.value?.title || 'New Chat')
+useHead({ title: pageTitle })
+
+const input = ref('')
+
+const chat = new Chat({
+  id: data.value.id,
+  messages: data.value.messages,
+  transport: new DefaultChatTransport({
+    api: `/api/chats/${data.value.id}`
+  }),
+  onData: (dataPart) => {
+    if (dataPart.type === 'data-chat-title') {
+      refreshNuxtData('chats')
+      refreshChat()
+    }
+  },
+  onError(error) {
+    const { message } = typeof error.message === 'string' && error.message[0] === '{' ? JSON.parse(error.message) : error
+    toast.add({
+      description: message,
+      icon: 'i-lucide-alert-circle',
+      color: 'error',
+      duration: 0
+    })
+  }
+})
+
+async function handleSubmit(e: Event) {
+  e.preventDefault()
+  if (input.value.trim()) {
+    chat.sendMessage({
+      text: input.value
+    })
+    input.value = ''
+  }
+}
+
+const copied = ref(false)
+
+function copy(e: MouseEvent, message: UIMessage) {
+  clipboard.copy(getTextFromMessage(message))
+
+  copied.value = true
+
+  setTimeout(() => {
+    copied.value = false
+  }, 2000)
+}
+
+onMounted(() => {
+  if (data.value?.messages.length === 1) {
+    chat.regenerate()
+  }
+})
+</script>
+
+<template>
+  <UDashboardPanel id="chat" class="relative" :ui="{ body: 'p-0 sm:p-0' }">
+    <template #header>
+      <DashboardNavbar />
+    </template>
+
+    <template #body>
+      <UContainer class="flex-1 flex flex-col gap-4 sm:gap-6">
+        <UChatMessages
+          should-auto-scroll
+          :messages="chat.messages"
+          :status="chat.status"
+          :assistant="chat.status !== 'streaming' ? { actions: [{ label: 'Copy', icon: copied ? 'i-lucide-copy-check' : 'i-lucide-copy', onClick: copy }] } : { actions: [] }"
+          :spacing-offset="160"
+          class="lg:pt-(--ui-header-height) pb-4 sm:pb-6"
+        >
+          <template #content="{ message }">
+            <template v-for="(part, index) in message.parts" :key="`${message.id}-${part.type}-${index}${'state' in part ? `-${part.state}` : ''}`">
+              <Reasoning
+                v-if="part.type === 'reasoning'"
+                :text="part.text"
+                :is-streaming="part.state !== 'done'"
+              />
+              <!-- Only render markdown for assistant messages to prevent XSS from user input -->
+              <MDCCached
+                v-else-if="part.type === 'text' && message.role === 'assistant'"
+                :value="part.text"
+                :cache-key="`${message.id}-${index}`"
+                :components="components"
+                :parser-options="{ highlight: false }"
+                class="*:first:mt-0 *:last:mb-0"
+              />
+              <!-- User messages are rendered as plain text (safely escaped by Vue) -->
+              <p v-else-if="part.type === 'text' && message.role === 'user'" class="whitespace-pre-wrap">
+                {{ part.text }}
+              </p>
+            </template>
+          </template>
+        </UChatMessages>
+
+        <UChatPrompt
+          v-model="input"
+          :error="chat.error"
+          variant="subtle"
+          placeholder="Ask a follow-up or describe another task..."
+          :maxrows="8"
+          class="sticky bottom-0 [view-transition-name:chat-prompt] rounded-b-none z-10"
+          :ui="{ base: 'px-1.5' }"
+          @submit="handleSubmit"
+        >
+          <template #footer>
+            <div class="flex items-center gap-1.5">
+              <span class="inline-flex items-center gap-1 text-xs text-dimmed">
+                <UIcon name="i-lucide-cpu" class="size-3.5" />
+                <span>Llama 3.3 70B</span>
+              </span>
+              <span class="text-dimmed/40">·</span>
+              <UTooltip text="PDMShell documentation is automatically retrieved for each query">
+                <span class="inline-flex items-center gap-1 text-xs text-dimmed hover:text-muted cursor-default transition-colors">
+                  <UIcon name="i-lucide-book-open" class="size-3.5" />
+                  <span>RAG</span>
+                </span>
+              </UTooltip>
+              <template v-if="chat.status === 'streaming'">
+                <span class="text-dimmed/40">·</span>
+                <span class="inline-flex items-center gap-1 text-xs text-primary">
+                  <UIcon name="i-lucide-loader" class="size-3.5 animate-spin" />
+                  <span>Generating...</span>
+                </span>
+              </template>
+            </div>
+
+            <UChatPromptSubmit
+              :status="chat.status"
+              color="neutral"
+              size="sm"
+              @stop="chat.stop()"
+              @reload="chat.regenerate()"
+            />
+          </template>
+        </UChatPrompt>
+      </UContainer>
+    </template>
+  </UDashboardPanel>
+</template>
