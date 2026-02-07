@@ -1,0 +1,22 @@
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
+
+@theme static {
+  --font-sans: 'Public Sans', sans-serif;
+
+  --color-pdmshell-50: #faf5ff;
+  --color-pdmshell-100: #f3e8ff;
+  --color-pdmshell-200: #e9d5ff;
+  --color-pdmshell-300: #d8b4fe;
+  --color-pdmshell-400: #bb86fc;
+  --color-pdmshell-500: #a855f7;
+  --color-pdmshell-600: #9b6fcf;
+  --color-pdmshell-700: #7c3aed;
+  --color-pdmshell-800: #6b21a8;
+  --color-pdmshell-900: #581c87;
+  --color-pdmshell-950: #3b0764;
+}
+
+:root {
+  --ui-container: var(--container-3xl);
+}
