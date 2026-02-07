@@ -8,6 +8,7 @@
         color="neutral"
         variant="ghost"
         icon="i-lucide-plus"
+        aria-label="New chat"
         to="/"
         class="lg:hidden"
       />

@@ -1,9 +1,13 @@
+import { z } from 'zod'
 import { db, schema } from 'hub:db'
 import { and, eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const sessionId = getSessionId(event)
-  const { id } = getRouterParams(event)
+
+  const { id } = await getValidatedRouterParams(event, z.object({
+    id: z.string()
+  }).parse)
 
   const chat = await db.query.chats.findFirst({
     where: () => and(

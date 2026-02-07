@@ -34,6 +34,11 @@ const SYNONYMS: Record<string, string[]> = {
   folder: ["directory", "cd", "mkdir", "dir"],
   directory: ["folder", "cd", "mkdir", "dir"],
 
+  // File listing / directory listing synonyms
+  list: ["dir", "directory", "ls", "files", "show"],
+  ls: ["dir", "list", "files"],
+  dir: ["list", "ls", "directory", "files"],
+
   // File management synonyms
   delete: ["remove", "destroy", "purge"],
   remove: ["delete", "destroy"],
@@ -41,13 +46,21 @@ const SYNONYMS: Record<string, string[]> = {
   duplicate: ["copy", "clone"],
   recover: ["restore", "undelete", "bring back"],
   restore: ["recover", "undelete", "bring back"],
+  move: ["movetofolder", "relocate", "transfer"],
+  relocate: ["movetofolder", "move"],
+
+  // Create / add synonyms
+  create: ["mkdir", "addfolder", "new", "add"],
+  "new folder": ["mkdir", "addfolder", "create"],
 
   // Variable synonyms
   variable: ["var", "setvar", "getvar", "data card", "property"],
   "data card": ["variable", "setvar", "getvar", "property"],
   property: ["variable", "data card"],
-  "set variable": ["setvar", "write variable"],
+  "set variable": ["setvar", "write variable", "update"],
   "get variable": ["getvar", "read variable"],
+  update: ["setvar", "modify", "change", "edit", "set variable"],
+  modify: ["setvar", "update", "change", "edit"],
 
   // Search synonyms
   search: ["find", "query", "lookup", "filter"],
@@ -110,6 +123,10 @@ const SYNONYMS: Record<string, string[]> = {
   "short format": ["abbreviation", "shortcut", "shorthand"],
   abbreviation: ["short format", "shortcut", "shorthand"],
 
+  // Permission synonyms
+  permissions: ["setpermissions", "access", "rights", "security"],
+  access: ["permissions", "setpermissions", "rights"],
+
   // Release notes / changelog synonyms
   "release notes": ["changelog", "version history", "updates", "new features", "bug fix"],
   changelog: ["release notes", "version history", "updates", "what's new"],
@@ -122,16 +139,19 @@ const SYNONYMS: Record<string, string[]> = {
   premium: ["license", "free", "paid", "unlimited"],
 };
 
+/** Special single-character tokens that have meaning in PDMShell (wildcards, variables). */
+const MEANINGFUL_SINGLE_CHARS = new Set(["$", "%"]);
+
 /**
  * Tokenize a string: lowercase, split by non-alphanumeric characters,
- * and filter out very short tokens.
+ * and filter out very short tokens (except meaningful special characters).
  */
 function tokenize(text: string): string[] {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9$%]/g, " ")
     .split(/\s+/)
-    .filter((t) => t.length > 1);
+    .filter((t) => t.length > 1 || MEANINGFUL_SINGLE_CHARS.has(t));
 }
 
 /**
@@ -180,7 +200,7 @@ function expandWithSynonyms(queryTokens: string[], rawQuery: string): string[] {
 function scoreDocument(
   doc: DocChunk,
   expandedTokens: string[],
-  idfMap: Map<string, number>,
+  idf: Map<string, number>,
 ): number {
   let score = 0;
 
@@ -196,32 +216,32 @@ function scoreDocument(
   }
 
   for (const queryToken of expandedTokens) {
-    const idf = idfMap.get(queryToken) || 1;
+    const idfScore = idf.get(queryToken) || 1;
 
     // Exact keyword match (highest weight)
     for (const kw of docKeywords) {
       if (kw === queryToken) {
-        score += 4 * idf;
+        score += 4 * idfScore;
       } else if (kw.includes(queryToken) || queryToken.includes(kw)) {
-        score += 2 * idf;
+        score += 2 * idfScore;
       }
     }
 
     // Title match
     if (titleTokens.includes(queryToken)) {
-      score += 4 * idf;
+      score += 4 * idfScore;
     }
 
     // Category match
     if (categoryTokens.includes(queryToken)) {
-      score += 2 * idf;
+      score += 2 * idfScore;
     }
 
     // Content TF-IDF
     const tf = contentTF.get(queryToken) || 0;
     if (tf > 0) {
       // Log-scaled TF to prevent very long docs from dominating
-      score += (1 + Math.log(tf)) * idf;
+      score += (1 + Math.log(tf)) * idfScore;
     }
   }
 
@@ -265,8 +285,21 @@ function buildIDFMap(): Map<string, number> {
   return idfMap;
 }
 
-// Pre-compute the IDF map at module load time since docs are static
-const idfMap = buildIDFMap();
+// Lazy IDF initialization — computed on first query, cached thereafter
+let _idfMap: Map<string, number> | null = null;
+function getIDFMap(): Map<string, number> {
+  if (!_idfMap) {
+    _idfMap = buildIDFMap();
+  }
+  return _idfMap;
+}
+
+/** Minimum number of results to return when relevant docs exist. */
+const MIN_RESULTS = 5;
+/** Maximum number of results to return. */
+const MAX_RESULTS = 8;
+/** Documents with scores below this fraction of the top score are excluded from the extended result set. */
+const SCORE_THRESHOLD_RATIO = 0.4;
 
 /**
  * Retrieve the most relevant PDMShell documentation chunks for a given query.
@@ -286,6 +319,7 @@ export async function retrievePDMShellDocs(
     return [];
   }
 
+  const idfMap = getIDFMap();
   const expandedTokens = expandWithSynonyms(queryTokens, query);
 
   // Score each document
@@ -309,19 +343,15 @@ export async function retrievePDMShellDocs(
       .map((d) => `## ${d.title}\n\n${d.content}`);
   }
 
-  // Take top 5-8 results based on score distribution
-  // Always return at least 5 (if available), up to 8
-  const minResults = 5;
-  const maxResults = 8;
+  // Take top MIN_RESULTS-MAX_RESULTS based on score distribution
+  let resultCount = MIN_RESULTS;
 
-  let resultCount = minResults;
-
-  if (relevant.length > minResults) {
-    // Include additional results if they have at least 40% of the top score
+  if (relevant.length > MIN_RESULTS) {
+    // Include additional results if they have at least SCORE_THRESHOLD_RATIO of the top score
     const topScore = relevant[0]!.score;
-    const threshold = topScore * 0.4;
+    const threshold = topScore * SCORE_THRESHOLD_RATIO;
 
-    for (let i = minResults; i < Math.min(relevant.length, maxResults); i++) {
+    for (let i = MIN_RESULTS; i < Math.min(relevant.length, MAX_RESULTS); i++) {
       if (relevant[i]!.score >= threshold) {
         resultCount = i + 1;
       }

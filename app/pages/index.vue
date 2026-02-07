@@ -3,11 +3,13 @@
 
 const input = ref('')
 const loading = ref(false)
+const loadingPrompt = ref<string | null>(null)
 const chatId = crypto.randomUUID()
 
 async function createChat(prompt: string) {
   input.value = prompt
   loading.value = true
+  loadingPrompt.value = prompt
 
   const parts: Array<{ type: string, text?: string, mediaType?: string, url?: string }> = [{ type: 'text', text: prompt }]
 
@@ -114,6 +116,8 @@ const quickChats = [
             :key="quickChat.label"
             :icon="quickChat.icon"
             :label="quickChat.label"
+            :loading="loadingPrompt === quickChat.label"
+            :disabled="loading"
             size="sm"
             color="neutral"
             variant="outline"

@@ -22,16 +22,16 @@ const { data: chats, refresh: refreshChats } = await useFetch('/api/chats', {
     id: chat.id,
     label: chat.title || 'Untitled',
     to: `/chat/${chat.id}`,
-    icon: 'i-lucide-message-circle',
     createdAt: chat.createdAt
   }))
 })
 
+// Preload first 10 chats in parallel for faster navigation
 onNuxtReady(async () => {
   const first10 = (chats.value || []).slice(0, 10)
-  for (const chat of first10) {
-    await $fetch(`/api/chats/${chat.id}`)
-  }
+  await Promise.allSettled(
+    first10.map(chat => $fetch(`/api/chats/${chat.id}`).catch(() => null))
+  )
 })
 
 const { groups } = useChats(chats)
@@ -43,10 +43,11 @@ const items = computed(() => groups.value?.flatMap((group) => {
   }, ...group.items.map(item => ({
     ...item,
     slot: 'chat' as const,
-    icon: undefined,
     class: item.label === 'Untitled' ? 'text-muted' : ''
   }))]
 }))
+
+const hasChats = computed(() => items.value && items.value.length > 0)
 
 // Mock user for auth placeholder
 const mockUser = {
@@ -81,7 +82,7 @@ const userMenuItems = computed<DropdownMenuItem[][]>(() => ([[{
     }
   }]
 }], [{
-  label: 'Sign in',
+  label: 'Sign in (coming soon)',
   icon: 'i-lucide-log-in',
   disabled: true,
   onSelect() {
@@ -114,6 +115,9 @@ async function deleteChat(id: string) {
 defineShortcuts({
   c: () => {
     navigateTo('/')
+  },
+  meta_n: () => {
+    navigateTo('/')
   }
 })
 </script>
@@ -144,6 +148,7 @@ defineShortcuts({
         <div class="flex flex-col gap-1.5">
           <UButton
             v-bind="collapsed ? { icon: 'i-lucide-plus' } : { label: 'New chat' }"
+            :aria-label="collapsed ? 'New chat' : undefined"
             variant="soft"
             block
             to="/"
@@ -156,27 +161,40 @@ defineShortcuts({
           </template>
         </div>
 
-        <UNavigationMenu
-          v-if="!collapsed"
-          :items="items"
-          :collapsed="collapsed"
-          orientation="vertical"
-          :ui="{ link: 'overflow-hidden' }"
-        >
-          <template #chat-trailing="{ item }">
-            <div class="flex -mr-1.25 translate-x-full group-hover:translate-x-0 transition-transform">
-              <UButton
-                icon="i-lucide-x"
-                color="neutral"
-                variant="ghost"
-                size="xs"
-                class="text-muted hover:text-primary hover:bg-accented/50 focus-visible:bg-accented/50 p-0.5"
-                tabindex="-1"
-                @click.stop.prevent="deleteChat((item as any).id)"
-              />
-            </div>
-          </template>
-        </UNavigationMenu>
+        <template v-if="!collapsed">
+          <UNavigationMenu
+            v-if="hasChats"
+            :items="items"
+            :collapsed="collapsed"
+            orientation="vertical"
+            :ui="{ link: 'overflow-hidden' }"
+          >
+            <template #chat-trailing="{ item }">
+              <div class="flex -mr-1.25 translate-x-full group-hover:translate-x-0 transition-transform">
+                <UButton
+                  icon="i-lucide-x"
+                  color="neutral"
+                  variant="ghost"
+                  size="xs"
+                  aria-label="Delete chat"
+                  class="text-muted hover:text-primary hover:bg-accented/50 focus-visible:bg-accented/50 p-0.5"
+                  tabindex="-1"
+                  @click.stop.prevent="deleteChat((item as { id: string }).id)"
+                />
+              </div>
+            </template>
+          </UNavigationMenu>
+
+          <div v-else class="flex flex-col items-center gap-2 py-8 px-4 text-center">
+            <UIcon name="i-lucide-message-square-dashed" class="size-8 text-dimmed" />
+            <p class="text-sm text-muted">
+              No conversations yet
+            </p>
+            <p class="text-xs text-dimmed">
+              Start a new chat to get going
+            </p>
+          </div>
+        </template>
       </template>
 
       <template #footer="{ collapsed }">

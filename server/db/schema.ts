@@ -9,6 +9,7 @@ export const chats = sqliteTable('chats', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   title: text('title'),
   sessionId: text('session_id').notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
   ...timestamps
 }, table => [
   index('chats_session_id_idx').on(table.sessionId)
@@ -25,7 +26,8 @@ export const messages = sqliteTable('messages', {
   parts: text('parts', { mode: 'json' }),
   ...timestamps
 }, table => [
-  index('messages_chat_id_idx').on(table.chatId)
+  index('messages_chat_id_idx').on(table.chatId),
+  index('messages_chat_id_created_at_idx').on(table.chatId, table.createdAt)
 ])
 
 export const messagesRelations = relations(messages, ({ one }) => ({
