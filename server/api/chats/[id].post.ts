@@ -1,7 +1,7 @@
 import { convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse, generateText, smoothStream, streamText } from 'ai'
 import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
-import { db, schema } from 'hub:db'
+import { db, schema } from '../../utils/db'
 import { and, eq } from 'drizzle-orm'
 import type { UIMessage } from 'ai'
 

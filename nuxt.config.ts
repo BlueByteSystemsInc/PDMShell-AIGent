@@ -3,8 +3,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
-    '@nuxtjs/mdc',
-    '@nuxthub/core'
+    '@nuxtjs/mdc'
   ],
 
   devtools: {
@@ -32,11 +31,10 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       openAPI: true
+    },
+    externals: {
+      inline: ['postgres', 'drizzle-orm']
     }
-  },
-
-  hub: {
-    db: 'sqlite'
   },
 
   eslint: {

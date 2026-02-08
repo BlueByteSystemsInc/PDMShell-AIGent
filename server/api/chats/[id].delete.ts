@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { db, schema } from 'hub:db'
+import { db, schema } from '../../utils/db'
 import { and, eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
