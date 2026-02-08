@@ -56,7 +56,7 @@ function copyCode() {
       <span>{{ copied ? 'Copied!' : 'Copy' }}</span>
     </button>
 
-    <ProsePre v-bind="props">
+    <ProsePre v-bind="props" :ui="{ copy: 'hidden' }">
       <ShikiCachedRenderer
         :key="key"
         :highlighter="highlighter"
