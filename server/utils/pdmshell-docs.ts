@@ -1,15 +1,15 @@
 export interface DocChunk {
-  id: string;
-  title: string;
-  content: string;
-  keywords: string[];
-  category: string;
+  id: string
+  title: string
+  content: string
+  keywords: string[]
+  category: string
 }
 
 export const pdmshellDocs: DocChunk[] = [
   {
-    id: "addtovault",
-    title: "ADDTOVAULT Command",
+    id: 'addtovault',
+    title: 'ADDTOVAULT Command',
     content: `The \`addtovault\` command is used to add files and/or directories to the PDM vault. It supports various parameters to specify the source files or directories, search queries, and additional options such as ignoring existing files, updating references, and recursive operations.
 
 It is highly recommended that you run PDMShell as administrator before using this command.
@@ -36,12 +36,12 @@ REMARKS:
 - Ensure you have the necessary permissions to add files or directories to the PDM vault.
 - Files are left checked out after command completes.
 - Use \`checkin -search % -recursive\` to check in all added files after calling addtovault.`,
-    keywords: ["addtovault", "add", "vault", "import", "files", "directories", "csv", "source", "recursive", "ignoreex", "updaterefs", "upload", "bring in"],
-    category: "file-management"
+    keywords: ['addtovault', 'add', 'vault', 'import', 'files', 'directories', 'csv', 'source', 'recursive', 'ignoreex', 'updaterefs', 'upload', 'bring in'],
+    category: 'file-management'
   },
   {
-    id: "bom",
-    title: "BOM Command",
+    id: 'bom',
+    title: 'BOM Command',
     content: `The BOM command allows you to extract a Bill of Materials from a SOLIDWORKS file inside the PDM vault and export it to a CSV file. This command supports configuration evaluation using $configuration, allows specifying configNames, and supports selecting a layout from all available BOM layouts.
 
 SYNTAX:
@@ -53,12 +53,12 @@ PARAMETERS:
 - directory: Target folder where the CSV will be saved.
 - configNames: Comma-separated list of configurations to extract the BOM from. If unspecified, all configurations are processed. Example: @,Default,Manufacturing.
 - layout: A comma-separated list of BOM layout names to export. Example: Engineering,Manufacturing. PDMShell validates layout names against PDM before exporting.`,
-    keywords: ["bom", "bill of materials", "export", "csv", "configuration", "layout", "assembly", "solidworks", "extract"],
-    category: "export"
+    keywords: ['bom', 'bill of materials', 'export', 'csv', 'configuration', 'layout', 'assembly', 'solidworks', 'extract'],
+    category: 'export'
   },
   {
-    id: "cd",
-    title: "CD Command",
+    id: 'cd',
+    title: 'CD Command',
     content: `Changes the current PDM directory.
 
 SYNTAX:
@@ -78,12 +78,12 @@ cd -id 755  # navigates to the folder with id 755
 REMARKS:
 - If the user just created a new folder and wants to cd to it using autocomplete, they need to use the dir command with the -refresh parameter to force the session to load the current files and sub-folders in the active directory.
 - directory is the default parameter. You do not need to specify it if it is the only parameter in your command.`,
-    keywords: ["cd", "change directory", "navigate", "folder", "path", "directory", "move", "switch"],
-    category: "navigation"
+    keywords: ['cd', 'change directory', 'navigate', 'folder', 'path', 'directory', 'move', 'switch'],
+    category: 'navigation'
   },
   {
-    id: "checkin",
-    title: "CHECKIN Command",
+    id: 'checkin',
+    title: 'CHECKIN Command',
     content: `Performs a check-in operation on a specified file or many files.
 
 SYNTAX:
@@ -113,12 +113,12 @@ Checkinoptions Parameter Values:
 - EdmUnlock_OverwriteLatestVersion: Do not create a new version; overwrite the last version of the file with new changes.
 - EdmUnlock_RemoveLocalCopy: Remove the local copy of the file from the hard disk after the file has been checked in.
 - EdmUnlock_Simple: Check in the file using default behavior.`,
-    keywords: ["checkin", "check in", "unlock", "commit", "save", "version", "comment", "checkinoptions"],
-    category: "version-control"
+    keywords: ['checkin', 'check in', 'unlock', 'commit', 'save', 'version', 'comment', 'checkinoptions'],
+    category: 'version-control'
   },
   {
-    id: "checkout",
-    title: "CHECKOUT Command",
+    id: 'checkout',
+    title: 'CHECKOUT Command',
     content: `Performs a check out operation on a specified file or many files.
 
 SYNTAX:
@@ -155,12 +155,12 @@ checkout -filePath file1.sldprt
 
 REMARKS:
 - The search parameter searches the current directory and does not drill down. The search query is a PDM one, so you can use % for wildcard.`,
-    keywords: ["checkout", "check out", "lock", "edit", "reserve", "checkoutoptions", "references"],
-    category: "version-control"
+    keywords: ['checkout', 'check out', 'lock', 'edit', 'reserve', 'checkoutoptions', 'references'],
+    category: 'version-control'
   },
   {
-    id: "clearcache",
-    title: "CLEARCACHE Command",
+    id: 'clearcache',
+    title: 'CLEARCACHE Command',
     content: `Clears the local cache of a folder or many files.
 
 SYNTAX:
@@ -181,12 +181,12 @@ clearcache -directory project -toolboxflag
 
 clearcache -source "source.csv"
 # Clears the cache for the specified source.`,
-    keywords: ["clearcache", "clear cache", "cache", "local", "clean", "toolbox", "refresh"],
-    category: "system"
+    keywords: ['clearcache', 'clear cache', 'cache', 'local', 'clean', 'toolbox', 'refresh'],
+    category: 'system'
   },
   {
-    id: "cls",
-    title: "CLS Command",
+    id: 'cls',
+    title: 'CLS Command',
     content: `Clears the current session.
 
 SYNTAX:
@@ -197,12 +197,12 @@ Command has no parameters.
 
 REMARKS:
 - You can alternatively set the Line Limit Count from the settings to remind the session to clear every count of lines.`,
-    keywords: ["cls", "clear", "screen", "session", "reset"],
-    category: "system"
+    keywords: ['cls', 'clear', 'screen', 'session', 'reset'],
+    category: 'system'
   },
   {
-    id: "copy",
-    title: "COPY Command",
+    id: 'copy',
+    title: 'COPY Command',
     content: `Performs a vault-to-vault copy operation in SOLIDWORKS PDM.
 
 The copy command creates new files with new File IDs inside the vault by copying:
@@ -231,12 +231,12 @@ REMARKS:
 - If source is a file, search and recursive are ignored.
 - If source is a folder and search is not provided, all files in that folder are copied.
 - The search parameter does not search the entire vault, only the source folder.`,
-    keywords: ["copy", "duplicate", "clone", "vault", "file id", "source", "destination"],
-    category: "file-management"
+    keywords: ['copy', 'duplicate', 'clone', 'vault', 'file id', 'source', 'destination'],
+    category: 'file-management'
   },
   {
-    id: "copytree",
-    title: "COPYTREE Command",
+    id: 'copytree',
+    title: 'COPYTREE Command',
     content: `The copytree command is used to copy files and their associated metadata from a source directory or search results, with options to apply prefixes, suffixes, and other filters. This only works with assembly files.
 
 SYNTAX:
@@ -260,12 +260,12 @@ REMARKS:
 - The -dir parameter specifies the target directory. If omitted, the current directory is used.
 - The -includedrawings parameter ensures that associated drawing files are included.
 - The -latest parameter ensures that only the latest versions are copied.`,
-    keywords: ["copytree", "copy tree", "assembly", "duplicate", "suffix", "prefix", "drawings", "metadata", "clone"],
-    category: "file-management"
+    keywords: ['copytree', 'copy tree', 'assembly', 'duplicate', 'suffix', 'prefix', 'drawings', 'metadata', 'clone'],
+    category: 'file-management'
   },
   {
-    id: "delete",
-    title: "DELETE Command",
+    id: 'delete',
+    title: 'DELETE Command',
     content: `The delete command is used to delete files or directories from the PDM system. It supports various parameters to specify the target files or directories, including file paths, directory paths, search queries, and IDs. The command also supports recursive deletion for directories.
 
 SYNTAX:
@@ -290,12 +290,12 @@ REMARKS:
 - Use the recursive parameter with caution.
 - Ensure you have the necessary permissions.
 - Use the exported csv from -csv with the recover command.`,
-    keywords: ["delete", "remove", "destroy", "files", "directories", "recursive", "list", "csv"],
-    category: "file-management"
+    keywords: ['delete', 'remove', 'destroy', 'files', 'directories', 'recursive', 'list', 'csv'],
+    category: 'file-management'
   },
   {
-    id: "deletefromsource",
-    title: "DELETEFROMSOURCE Command",
+    id: 'deletefromsource',
+    title: 'DELETEFROMSOURCE Command',
     content: `The deletefromsource function is used to delete files from a csv file.
 
 SYNTAX:
@@ -311,12 +311,12 @@ REMARKS:
 
 EXAMPLES:
 deletefromsource -filePath "files to delete.csv"`,
-    keywords: ["deletefromsource", "delete", "csv", "batch", "bulk", "source"],
-    category: "file-management"
+    keywords: ['deletefromsource', 'delete', 'csv', 'batch', 'bulk', 'source'],
+    category: 'file-management'
   },
   {
-    id: "destroy",
-    title: "DESTROY Command",
+    id: 'destroy',
+    title: 'DESTROY Command',
     content: `The destroy command is used to permanently delete files that have been marked as deleted in a specified directory. This command supports recursive deletion and filtering by date.
 
 SYNTAX:
@@ -336,12 +336,12 @@ REMARKS:
 - Use the recursive parameter with caution.
 - The date parameter allows you to target files deleted on or before the specified date.
 - This action is irreversible. Ensure you have the necessary permissions.`,
-    keywords: ["destroy", "permanent delete", "purge", "irreversible", "date filter", "remove permanently"],
-    category: "file-management"
+    keywords: ['destroy', 'permanent delete', 'purge', 'irreversible', 'date filter', 'remove permanently'],
+    category: 'file-management'
   },
   {
-    id: "dir",
-    title: "DIR Command",
+    id: 'dir',
+    title: 'DIR Command',
     content: `Displays a list of files and subdirectories in a directory.
 
 SYNTAX:
@@ -361,12 +361,12 @@ dir -sort "name" -cols "description,partnumber" -csv "output.csv" -refresh
 REMARKS:
 - Use the -refresh parameter to force the session to load the current files and sub-folders. Do not use this when the current folder has many items.
 - The CSV file will be checked into the current directory.`,
-    keywords: ["dir", "list", "directory", "files", "folders", "columns", "csv", "sort", "refresh", "ls"],
-    category: "navigation"
+    keywords: ['dir', 'list', 'directory', 'files', 'folders', 'columns', 'csv', 'sort', 'refresh', 'ls'],
+    category: 'navigation'
   },
   {
-    id: "dump",
-    title: "DUMP Command",
+    id: 'dump',
+    title: 'DUMP Command',
     content: `Dumps all session text into a log file and check it back into the vault.
 
 SYNTAX:
@@ -381,12 +381,12 @@ dump -filePath "$release_script_$yyyy_$mm_$dd_$guid.txt"
 REMARKS:
 - To make sure your logs are always unique, use $guid or the date/time place holders.
 - If you start PDMShell as a Windows administrator with the -winlog or /winlog parameter, PDMShell will create logs in the Windows event viewer.`,
-    keywords: ["dump", "log", "session", "save", "output", "text", "winlog", "event viewer"],
-    category: "system"
+    keywords: ['dump', 'log', 'session', 'save', 'output', 'text', 'winlog', 'event viewer'],
+    category: 'system'
   },
   {
-    id: "editvars",
-    title: "EDITVARS Command",
+    id: 'editvars',
+    title: 'EDITVARS Command',
     content: `Opens the PDM variable editor.
 
 SYNTAX:
@@ -398,12 +398,12 @@ None
 EXAMPLES:
 editvars
 # open the PDM variable editor`,
-    keywords: ["editvars", "edit variables", "variable editor", "data card", "manager"],
-    category: "variables"
+    keywords: ['editvars', 'edit variables', 'variable editor', 'data card', 'manager'],
+    category: 'variables'
   },
   {
-    id: "eval",
-    title: "Dynamic Placeholders (EVAL)",
+    id: 'eval',
+    title: 'Dynamic Placeholders (EVAL)',
     content: `The Dynamic Placeholders feature in PDMShell allows you to substitute values dynamically using placeholders. This functionality is supported by several commands and enables the use of file or folder properties, system variables, and other contextual information to generate new values automatically.
 
 Dynamic Placeholders are not a standalone command but a feature used by specific commands to process the value parameter or other relevant inputs.
@@ -460,12 +460,12 @@ You can include other variables by enclosing them in square brackets (e.g., [Var
 
 Example:
 rename -filePath 1.sldprt -value "$nameWithoutExtension_$yyyy$mm$dd$extension"`,
-    keywords: ["eval", "placeholder", "dynamic", "alias", "substitution", "variable", "expression", "template", "dollar sign", "value", "name", "extension", "date", "guid", "username", "vaultname"],
-    category: "scripting"
+    keywords: ['eval', 'placeholder', 'dynamic', 'alias', 'substitution', 'variable', 'expression', 'template', 'dollar sign', 'value', 'name', 'extension', 'date', 'guid', 'username', 'vaultname'],
+    category: 'scripting'
   },
   {
-    id: "export",
-    title: "EXPORT Command",
+    id: 'export',
+    title: 'EXPORT Command',
     content: `The ExportCommand allows you to export SOLIDWORKS files from the PDM vault to various formats using SOLIDWORKS. This command supports exporting a single file or multiple files found via search, with options for specifying file extensions, export location, and more.
 
 SYNTAX:
@@ -482,12 +482,12 @@ PARAMETERS:
 
 EXAMPLE:
 export -filePath "Designs/part1.sldprt" -name "part1_export" -directory "Exports" -extensions "pdf,dxf"`,
-    keywords: ["export", "convert", "save as", "pdf", "dxf", "stp", "step", "solidworks", "format", "extensions", "batch export"],
-    category: "export"
+    keywords: ['export', 'convert', 'save as', 'pdf', 'dxf', 'stp', 'step', 'solidworks', 'format', 'extensions', 'batch export'],
+    category: 'export'
   },
   {
-    id: "freevspremium",
-    title: "PDMShell Free vs Premium",
+    id: 'freevspremium',
+    title: 'PDMShell Free vs Premium',
     content: `PDMShell comes in two editions: Free for light use and Premium for full automation in SOLIDWORKS PDM.
 
 Free Edition:
@@ -510,12 +510,12 @@ Premium Edition:
 The Free Edition is ideal for evaluation and quick lookups with a limit of 5 items per command. Resellers and VARs may not use the Free version commercially.
 
 To buy a Premium PDMShell license, visit: http://bluebyte.biz/product/pdmshell`,
-    keywords: ["free", "premium", "license", "pricing", "limits", "commercial", "reseller", "compare", "features"],
-    category: "general"
+    keywords: ['free', 'premium', 'license', 'pricing', 'limits', 'commercial', 'reseller', 'compare', 'features'],
+    category: 'general'
   },
   {
-    id: "frogleap",
-    title: "FROGLEAP Command",
+    id: 'frogleap',
+    title: 'FROGLEAP Command',
     content: `Frog leaps an old version as newest. This effectively takes an older version and makes it the newest version of the file.
 
 SYNTAX:
@@ -531,12 +531,12 @@ frogleap -filePath "file1.sldprt" -oldVersion 2
 
 REMARKS:
 - The search parameter searches the current directory and does not drill down. The search query is a PDM one, so you can use % for wildcard.`,
-    keywords: ["frogleap", "frog leap", "version", "rollback", "revert", "promote", "old version", "restore version"],
-    category: "version-control"
+    keywords: ['frogleap', 'frog leap', 'version', 'rollback', 'revert', 'promote', 'old version', 'restore version'],
+    category: 'version-control'
   },
   {
-    id: "get",
-    title: "GET Command",
+    id: 'get',
+    title: 'GET Command',
     content: `Retrieves a specified version of a file or files (via search).
 
 SYNTAX:
@@ -563,12 +563,12 @@ get -filePath "file1.sldprt" -Version 2
 
 REMARKS:
 - The search parameter searches the current directory and does not drill down. The search query is a PDM one, so you can use % for wildcard.`,
-    keywords: ["get", "retrieve", "download", "cache", "version", "latest", "references", "local copy"],
-    category: "version-control"
+    keywords: ['get', 'retrieve', 'download', 'cache', 'version', 'latest', 'references', 'local copy'],
+    category: 'version-control'
   },
   {
-    id: "getvar",
-    title: "GETVAR Command",
+    id: 'getvar',
+    title: 'GETVAR Command',
     content: `Gets the value of a variable for a specified file or folder.
 
 SYNTAX:
@@ -588,12 +588,12 @@ REMARKS:
 - The configuration names should be separated by commas.
 - The variable must be in the data card.
 - This command will return what's in the local cache which may not be necessarily the latest version. For that, please use getVarFromDB.`,
-    keywords: ["getvar", "get variable", "read variable", "data card", "configuration", "value", "property"],
-    category: "variables"
+    keywords: ['getvar', 'get variable', 'read variable', 'data card', 'configuration', 'value', 'property'],
+    category: 'variables'
   },
   {
-    id: "getvarfromdb",
-    title: "GETVARFROMDB Command",
+    id: 'getvarfromdb',
+    title: 'GETVARFROMDB Command',
     content: `Gets the value of a variable for a specified file or folder directly from the database.
 
 SYNTAX:
@@ -610,12 +610,12 @@ getvarfromdb -f "file1.sldprt" -variableName "CustomVar"
 REMARKS:
 - The configuration names should be separated by commas.
 - This command will always return the latest value.`,
-    keywords: ["getvarfromdb", "get variable", "database", "latest", "read variable", "data card", "configuration", "value", "db"],
-    category: "variables"
+    keywords: ['getvarfromdb', 'get variable', 'database', 'latest', 'read variable', 'data card', 'configuration', 'value', 'db'],
+    category: 'variables'
   },
   {
-    id: "help",
-    title: "HELP Command",
+    id: 'help',
+    title: 'HELP Command',
     content: `Provides help about a command.
 
 SYNTAX:
@@ -626,12 +626,12 @@ PARAMETERS:
 
 EXAMPLES:
 help -c cd  # opens the help page about the change directory command`,
-    keywords: ["help", "documentation", "usage", "manual", "command info"],
-    category: "system"
+    keywords: ['help', 'documentation', 'usage', 'manual', 'command info'],
+    category: 'system'
   },
   {
-    id: "history",
-    title: "HISTORY Command",
+    id: 'history',
+    title: 'HISTORY Command',
     content: `Prints the history of a file.
 
 SYNTAX:
@@ -647,12 +647,12 @@ history -f "file1.sldprt"
 
 REMARKS:
 - The search parameter searches the current directory and does not drill down. The search query is a PDM one, so you can use % for wildcard.`,
-    keywords: ["history", "log", "audit", "trail", "versions", "changes", "file history"],
-    category: "version-control"
+    keywords: ['history', 'log', 'audit', 'trail', 'versions', 'changes', 'file history'],
+    category: 'version-control'
   },
   {
-    id: "inbox",
-    title: "INBOX Command",
+    id: 'inbox',
+    title: 'INBOX Command',
     content: `Opens the PDM inbox or sends a message as the logged-in user.
 
 SYNTAX:
@@ -666,12 +666,12 @@ PARAMETERS:
 EXAMPLES:
 inbox -message 'File checked in successfully'
 # sends the specified message to the logged-in user`,
-    keywords: ["inbox", "message", "send", "notification", "user", "communicate"],
-    category: "system"
+    keywords: ['inbox', 'message', 'send', 'notification', 'user', 'communicate'],
+    category: 'system'
   },
   {
-    id: "infovar",
-    title: "INFOVAR Command",
+    id: 'infovar',
+    title: 'INFOVAR Command',
     content: `Gets information about a variable.
 
 SYNTAX:
@@ -682,12 +682,12 @@ PARAMETERS:
 
 EXAMPLES:
 infovar -v Description`,
-    keywords: ["infovar", "info variable", "variable info", "metadata", "data card", "variable details"],
-    category: "variables"
+    keywords: ['infovar', 'info variable', 'variable info', 'metadata', 'data card', 'variable details'],
+    category: 'variables'
   },
   {
-    id: "kill",
-    title: "KILL Command",
+    id: 'kill',
+    title: 'KILL Command',
     content: `Kills a process.
 
 SYNTAX:
@@ -704,12 +704,12 @@ REMARKS:
 - This command uses taskkill from the command line.
 - This command requires PDM to be run as an administrator.
 - PDMShell adds a note called ADMIN in the top-right area of its window when it is open as admin.`,
-    keywords: ["kill", "terminate", "process", "stop", "solidworks", "taskkill", "administrator"],
-    category: "system"
+    keywords: ['kill', 'terminate', 'process', 'stop', 'solidworks', 'taskkill', 'administrator'],
+    category: 'system'
   },
   {
-    id: "login",
-    title: "LOGIN Command",
+    id: 'login',
+    title: 'LOGIN Command',
     content: `Authenticates a user to a specified vault.
 
 SYNTAX:
@@ -730,12 +730,12 @@ login -auto -vaultName bluebyte
 REMARKS:
 - You must have a local vault view before you can start using PDMShell.
 - The external parameter allows an application that is not supplied and supported by SOLIDWORKS Corporation to log into SOLIDWORKS PDM Professional.`,
-    keywords: ["login", "authenticate", "sign in", "vault", "username", "password", "auto", "windows", "session", "connect"],
-    category: "authentication"
+    keywords: ['login', 'authenticate', 'sign in', 'vault', 'username', 'password', 'auto', 'windows', 'session', 'connect'],
+    category: 'authentication'
   },
   {
-    id: "mkdir",
-    title: "MKDIR Command",
+    id: 'mkdir',
+    title: 'MKDIR Command',
     content: `Creates a new folder.
 
 SYNTAX:
@@ -751,12 +751,12 @@ mkdir -directory "NewFolder"
 REMARKS:
 - To get the new folder to show up in the auto-complete, please use the command cd -refresh.
 - directory is the default parameter. You do not need to specify it.`,
-    keywords: ["mkdir", "make directory", "create folder", "new folder", "directory"],
-    category: "navigation"
+    keywords: ['mkdir', 'make directory', 'create folder', 'new folder', 'directory'],
+    category: 'navigation'
   },
   {
-    id: "mkvar",
-    title: "MKVAR Command",
+    id: 'mkvar',
+    title: 'MKVAR Command',
     content: `Creates a new variable.
 
 SYNTAX:
@@ -778,12 +778,12 @@ MkVar Flags Values:
 - Mandatory: Missing values are not permitted; only for files.
 - VerFreeUpdateAll: Every version and revision are affected by variable update.
 - VerFreeLatest: Only the latest version is affected.`,
-    keywords: ["mkvar", "make variable", "create variable", "new variable", "data card", "type", "flags", "attributes"],
-    category: "variables"
+    keywords: ['mkvar', 'make variable', 'create variable', 'new variable', 'data card', 'type', 'flags', 'attributes'],
+    category: 'variables'
   },
   {
-    id: "print",
-    title: "PRINT Command",
+    id: 'print',
+    title: 'PRINT Command',
     content: `Displays the biographical information about the specified file.
 
 SYNTAX:
@@ -803,12 +803,12 @@ The print command will output:
 - State ID, State Name, Current state
 - Current Version, Current Revision
 - Available Transitions`,
-    keywords: ["print", "info", "details", "file info", "biographical", "state", "version", "archive path", "hexid", "transitions"],
-    category: "file-management"
+    keywords: ['print', 'info', 'details', 'file info', 'biographical', 'state', 'version', 'archive path', 'hexid', 'transitions'],
+    category: 'file-management'
   },
   {
-    id: "printfromsource",
-    title: "PRINTFROMSOURCE Command",
+    id: 'printfromsource',
+    title: 'PRINTFROMSOURCE Command',
     content: `The printfromsource command is used to validate a list of filepaths in the PDM system based on a source CSV file. The CSV file must contain a header and a list of complete file paths in the first column.
 
 SYNTAX:
@@ -824,12 +824,12 @@ printfromsource -filePath "source.csv" -csv "output.csv"
 REMARKS:
 - The filePath parameter is mandatory and must point to a valid CSV file.
 - The csv output contains: ID, Complete File Path, Folder ID, Checked Out, Where Used ID.`,
-    keywords: ["printfromsource", "validate", "verify", "csv", "batch", "file paths", "source"],
-    category: "file-management"
+    keywords: ['printfromsource', 'validate', 'verify', 'csv', 'batch', 'file paths', 'source'],
+    category: 'file-management'
   },
   {
-    id: "quit",
-    title: "QUIT Command",
+    id: 'quit',
+    title: 'QUIT Command',
     content: `Quits the application.
 
 SYNTAX:
@@ -840,12 +840,12 @@ PARAMETERS:
 
 REMARKS:
 - This command runs silently in scripts.`,
-    keywords: ["quit", "exit", "close", "end", "terminate", "silent"],
-    category: "system"
+    keywords: ['quit', 'exit', 'close', 'end', 'terminate', 'silent'],
+    category: 'system'
   },
   {
-    id: "reboot",
-    title: "REBOOT Command",
+    id: 'reboot',
+    title: 'REBOOT Command',
     content: `Hard PDM reboot.
 
 SYNTAX:
@@ -857,12 +857,12 @@ This command has no parameters.
 REMARKS:
 - This command uses taskkill from the command prompt to kill explorer.exe and edmserver.exe then restart explorer.exe.
 - It requires PDM to be run as an administrator.`,
-    keywords: ["reboot", "restart", "reset", "explorer", "edmserver", "administrator", "hard reboot"],
-    category: "system"
+    keywords: ['reboot', 'restart', 'reset', 'explorer', 'edmserver', 'administrator', 'hard reboot'],
+    category: 'system'
   },
   {
-    id: "recover",
-    title: "RECOVER Command",
+    id: 'recover',
+    title: 'RECOVER Command',
     content: `The recover command is used to recover files from a specified directory or source. It supports optional parameters for search queries and recursive operations.
 
 SYNTAX:
@@ -883,12 +883,12 @@ recover -directory ""
 
 REMARKS:
 - Ensure that the specified directory or source exists and is accessible.`,
-    keywords: ["recover", "restore", "undelete", "bring back", "deleted files", "csv", "source"],
-    category: "file-management"
+    keywords: ['recover', 'restore', 'undelete', 'bring back', 'deleted files', 'csv', 'source'],
+    category: 'file-management'
   },
   {
-    id: "rename",
-    title: "RENAME Command",
+    id: 'rename',
+    title: 'RENAME Command',
     content: `Renames a specified file.
 
 SYNTAX:
@@ -918,12 +918,12 @@ The value parameter gets evaluated by PDMShell. Supported placeholders:
 You can also use variables enclosed in square brackets (e.g., [VariableName]).
 
 Example: Using "$filename_$date_$version$extension" results in something like "oldname_10-12-2023_3".`,
-    keywords: ["rename", "rename file", "change name", "value", "extension", "placeholder", "evaluation"],
-    category: "file-management"
+    keywords: ['rename', 'rename file', 'change name', 'value', 'extension', 'placeholder', 'evaluation'],
+    category: 'file-management'
   },
   {
-    id: "renamefromsource",
-    title: "RENAMEFROMSOURCE Command",
+    id: 'renamefromsource',
+    title: 'RENAMEFROMSOURCE Command',
     content: `The renamefromsource command is used to rename files in the PDM system based on a source CSV file. The CSV file provides the necessary information to map file IDs to their new names and folder IDs. This command supports alias evaluation for dynamic renaming.
 
 SYNTAX:
@@ -944,12 +944,12 @@ File ID | New File Name | Folder ID
 REMARKS:
 - The filePath parameter is mandatory and must point to a valid CSV file.
 - The evaluatealias parameter supports dynamic placeholders for renaming, such as $name, $revision, $yyyy, etc.`,
-    keywords: ["renamefromsource", "rename", "batch rename", "csv", "bulk rename", "source", "alias", "evaluation"],
-    category: "file-management"
+    keywords: ['renamefromsource', 'rename', 'batch rename', 'csv', 'bulk rename', 'source', 'alias', 'evaluation'],
+    category: 'file-management'
   },
   {
-    id: "runscript",
-    title: "RUNSCRIPT Command",
+    id: 'runscript',
+    title: 'RUNSCRIPT Command',
     content: `Runs a PDMShell script.
 
 SYNTAX:
@@ -971,12 +971,12 @@ REMARKS:
 
 FREE VERSION LIMIT:
 - The free version is limited to 10 lines per script.`,
-    keywords: ["runscript", "run script", "execute", "pdmshell", "automation", "batch", "scripting"],
-    category: "scripting"
+    keywords: ['runscript', 'run script', 'execute', 'pdmshell', 'automation', 'batch', 'scripting'],
+    category: 'scripting'
   },
   {
-    id: "runtask",
-    title: "RUNTASK Command",
+    id: 'runtask',
+    title: 'RUNTASK Command',
     content: `The RUNTASK command allows you to execute a PDM task on a specific file or via search in the PDM vault.
 
 SYNTAX:
@@ -990,12 +990,12 @@ PARAMETERS:
 
 EXAMPLE:
 taskrun -TaskName "PrintPDF" -filePath "Assembly.sldasm"`,
-    keywords: ["runtask", "task", "execute", "pdm task", "administration", "automation"],
-    category: "scripting"
+    keywords: ['runtask', 'task', 'execute', 'pdm task', 'administration', 'automation'],
+    category: 'scripting'
   },
   {
-    id: "search",
-    title: "SEARCH Command",
+    id: 'search',
+    title: 'SEARCH Command',
     content: `The search command allows users to search for files and folders in the current directory. It supports recursive searches, filtering, and output customization.
 
 SYNTAX:
@@ -1017,12 +1017,12 @@ REMARKS:
 - We have introduced Advanced Search capabilities that can be used in the -search parameter.
 - Ensure the current directory is set correctly before running the command.
 - Use the -columns parameter to customize the output. Data is pulled from @ for configuration-supported documents.`,
-    keywords: ["search", "find", "query", "wildcard", "filter", "csv", "columns", "recursive", "lookup"],
-    category: "search"
+    keywords: ['search', 'find', 'query', 'wildcard', 'filter', 'csv', 'columns', 'recursive', 'lookup'],
+    category: 'search'
   },
   {
-    id: "searchfromsource",
-    title: "SEARCHFROMSOURCE Command",
+    id: 'searchfromsource',
+    title: 'SEARCHFROMSOURCE Command',
     content: `The searchfromsource command reads a CSV source file and uses the first column (ignoring the header) as input items to search for in the vault.
 
 For every row in the source CSV, PDMShell performs a vault search and returns:
@@ -1071,12 +1071,12 @@ LIMITATIONS:
 - Only the first search result is used (GetFirstResult()).
 - Only file results are processed (folder results are ignored).
 - The input file is interpreted as comma-delimited CSV only.`,
-    keywords: ["searchfromsource", "search", "csv", "batch search", "bulk", "source", "where used", "vault search"],
-    category: "search"
+    keywords: ['searchfromsource', 'search', 'csv', 'batch search', 'bulk', 'source', 'where used', 'vault search'],
+    category: 'search'
   },
   {
-    id: "setrevision",
-    title: "SETREVISION Command",
+    id: 'setrevision',
+    title: 'SETREVISION Command',
     content: `The SetRevisionCommand allows you to set the PDM-managed revision of a file inside the vault. This command updates the official PDM Revision (the value shown on the version tab), not the datacard one.
 
 You may set the revision using:
@@ -1101,12 +1101,12 @@ NOTES:
 - %nextrevision% respects all revision scheme rules.
 
 AVAILABILITY: 3.0.11`,
-    keywords: ["setrevision", "set revision", "revision", "increment", "nextrevision", "previousrevision", "initial", "version tab"],
-    category: "version-control"
+    keywords: ['setrevision', 'set revision', 'revision', 'increment', 'nextrevision', 'previousrevision', 'initial', 'version tab'],
+    category: 'version-control'
   },
   {
-    id: "setrevisionfromsource",
-    title: "SETREVISIONFROMSOURCE Command",
+    id: 'setrevisionfromsource',
+    title: 'SETREVISIONFROMSOURCE Command',
     content: `The SetRevisionFromSourceCommand allows you to batch-update the PDM-managed revision for multiple files by reading values from a CSV input source.
 
 The source CSV must contain: Id (PDM file ID) and Value (revision value to apply).
@@ -1127,12 +1127,12 @@ NOTES:
 - If a file ID cannot be updated, the error is logged and processing continues.
 
 AVAILABILITY: 3.0.12`,
-    keywords: ["setrevisionfromsource", "batch revision", "csv", "bulk", "source", "revision update"],
-    category: "version-control"
+    keywords: ['setrevisionfromsource', 'batch revision', 'csv', 'bulk', 'source', 'revision update'],
+    category: 'version-control'
   },
   {
-    id: "setvar",
-    title: "SETVAR Command",
+    id: 'setvar',
+    title: 'SETVAR Command',
     content: `Sets the value of a variable for a specified checked out file or many checked out files.
 
 SYNTAX:
@@ -1158,12 +1158,12 @@ REMARKS:
 - stringformat options: UpperCase, LowerCase, CamelCase, FirstLetterCase.
 
 As of version 3.0.9, support for setting folder datacard variables was added.`,
-    keywords: ["setvar", "set variable", "write variable", "data card", "value", "configuration", "stringformat", "uppercase", "lowercase"],
-    category: "variables"
+    keywords: ['setvar', 'set variable', 'write variable', 'data card', 'value', 'configuration', 'stringformat', 'uppercase', 'lowercase'],
+    category: 'variables'
   },
   {
-    id: "setvarsfromsource",
-    title: "SETVARSFROMSOURCE Command",
+    id: 'setvarsfromsource',
+    title: 'SETVARSFROMSOURCE Command',
     content: `Sets variables for multiple files using a CSV file as the source.
 
 SYNTAX:
@@ -1185,12 +1185,12 @@ REMARKS:
 - The best way to generate a source CSV is to use the dir command or the search command with -csv and columns:
   dir -columns Description,"Part Number" -csv data.csv
   search -search %.sldprt -recursive -columns Description,"Part Number" -csv data.csv`,
-    keywords: ["setvarsfromsource", "set variables", "batch", "csv", "bulk", "source", "data card", "multiple files"],
-    category: "variables"
+    keywords: ['setvarsfromsource', 'set variables', 'batch', 'csv', 'bulk', 'source', 'data card', 'multiple files'],
+    category: 'variables'
   },
   {
-    id: "start",
-    title: "START Command",
+    id: 'start',
+    title: 'START Command',
     content: `The start command is used to launch programs, tools, or specific applications. It supports launching SOLIDWORKS, the PDM administration tool, Notepad, Windows Explorer, and other custom programs.
 
 SYNTAX:
@@ -1213,12 +1213,12 @@ REMARKS:
 - The notepad option launches the default Notepad application.
 - The apihelp option opens the SOLIDWORKS API help file.
 - The explorer or . option opens Windows Explorer or the current folder.`,
-    keywords: ["start", "launch", "open", "program", "solidworks", "admin", "notepad", "explorer", "application"],
-    category: "system"
+    keywords: ['start', 'launch', 'open', 'program', 'solidworks', 'admin', 'notepad', 'explorer', 'application'],
+    category: 'system'
   },
   {
-    id: "taskscript",
-    title: "TaskScript (Run Script as Task)",
+    id: 'taskscript',
+    title: 'TaskScript (Run Script as Task)',
     content: `TaskScript is a custom PDM task add-in developed by Blue Byte Systems Inc. that allows you to execute PDMShell scripts the same way you would use the built-in Convert task.
 
 This task can be requested upon purchase of a premium license of PDMShell. To request after purchase, email support@bluebytesystemsinc.zohodesk.com.
@@ -1264,12 +1264,12 @@ REMARKS:
 - Do not forget to set the Command Menu tab.
 - Lines starting with # are treated as comments.
 - You can request a script by emailing via the Request Script button.`,
-    keywords: ["taskscript", "task", "add-in", "premium", "automation", "trigger", "convert", "pdm task", "placeholder", "variable configuration"],
-    category: "scripting"
+    keywords: ['taskscript', 'task', 'add-in', 'premium', 'automation', 'trigger', 'convert', 'pdm task', 'placeholder', 'variable configuration'],
+    category: 'scripting'
   },
   {
-    id: "undocheckout",
-    title: "UNDOCHECKOUT Command",
+    id: 'undocheckout',
+    title: 'UNDOCHECKOUT Command',
     content: `Undoes a checkout operation.
 
 SYNTAX:
@@ -1284,12 +1284,12 @@ undocheckout -f "file1.sldprt"
 
 REMARKS:
 - The search parameter searches the current directory and does not drill down. The search query is a PDM one, so you can use % for wildcard.`,
-    keywords: ["undocheckout", "undo checkout", "undo check out", "cancel checkout", "unlock", "revert"],
-    category: "version-control"
+    keywords: ['undocheckout', 'undo checkout', 'undo check out', 'cancel checkout', 'unlock', 'revert'],
+    category: 'version-control'
   },
   {
-    id: "updatereferences",
-    title: "UPDATEREFERENCES Command",
+    id: 'updatereferences',
+    title: 'UPDATEREFERENCES Command',
     content: `Updates file references inside the SOLIDWORKS PDM vault.
 
 The updatereferences command modifies references stored inside files, without opening SOLIDWORKS, and allows you to:
@@ -1328,12 +1328,12 @@ REMARKS:
 - If both are provided, filepath takes precedence.
 - Reference resolution is based on matching file names within the directory scope.
 - This command modifies files directly; use with care.`,
-    keywords: ["updatereferences", "update references", "fix references", "broken references", "migration", "scope", "outside vault", "repair"],
-    category: "file-management"
+    keywords: ['updatereferences', 'update references', 'fix references', 'broken references', 'migration', 'scope', 'outside vault', 'repair'],
+    category: 'file-management'
   },
   {
-    id: "users",
-    title: "USERS Command",
+    id: 'users',
+    title: 'USERS Command',
     content: `Lists all the users in the active vault.
 
 SYNTAX:
@@ -1344,12 +1344,12 @@ None.
 
 EXAMPLES:
 users`,
-    keywords: ["users", "list users", "vault users", "accounts", "people"],
-    category: "authentication"
+    keywords: ['users', 'list users', 'vault users', 'accounts', 'people'],
+    category: 'authentication'
   },
   {
-    id: "version",
-    title: "VERSION Command",
+    id: 'version',
+    title: 'VERSION Command',
     content: `Displays version information for PDMShell, installed SOLIDWORKS, or the PDM client.
 
 SYNTAX:
@@ -1363,12 +1363,12 @@ PARAMETERS:
 EXAMPLES:
 version -solidworks
 # lists all the installed solidworks versions`,
-    keywords: ["version", "info", "solidworks version", "pdm version", "pdmshell version", "installed"],
-    category: "system"
+    keywords: ['version', 'info', 'solidworks version', 'pdm version', 'pdmshell version', 'installed'],
+    category: 'system'
   },
   {
-    id: "versionupgrade",
-    title: "VERSIONUPGRADE Command",
+    id: 'versionupgrade',
+    title: 'VERSIONUPGRADE Command',
     content: `The VersionUpgradeCommand provides tools for bumping PDM revisions, validating file references, and exporting broken reference results to a CSV file.
 
 A SOLIDWORKS file upgrade increments the file version and thus the revision. Use -bumprevision to reset the revision back to the previous value prior to the file upgrade.
@@ -1414,12 +1414,12 @@ NOTES:
 - Bulk operations respect PDM permissions and may fail if the user lacks rights.
 
 AVAILABILITY: 3.0.13`,
-    keywords: ["versionupgrade", "version upgrade", "bump revision", "references check", "broken references", "csv", "migration", "upgrade", "EdmCheckRef"],
-    category: "version-control"
+    keywords: ['versionupgrade', 'version upgrade', 'bump revision', 'references check', 'broken references', 'csv', 'migration', 'upgrade', 'EdmCheckRef'],
+    category: 'version-control'
   },
   {
-    id: "advancedsearch",
-    title: "Advanced Search Guide",
+    id: 'advancedsearch',
+    title: 'Advanced Search Guide',
     content: `PDMShell provides a complete search engine based on PDM's own search. This feature is extremely useful with commands that have a -search parameter.
 
 WILDCARDS (SQL-Style Pattern Matching):
@@ -1514,12 +1514,12 @@ All conditions must match.
 
 INVALID INPUT HANDLING:
 Invalid expressions are ignored silently. PDMShell continues applying valid conditions. Examples: @MissingVar=Test, HistoryBefore=BADDATE, UnknownKey=Value.`,
-    keywords: ["advanced search", "search", "wildcard", "query", "filter", "tokens", "variables", "operators", "contains", "equals", "pattern", "sql", "label", "state", "history", "content", "locked"],
-    category: "search"
+    keywords: ['advanced search', 'search', 'wildcard', 'query', 'filter', 'tokens', 'variables', 'operators', 'contains', 'equals', 'pattern', 'sql', 'label', 'state', 'history', 'content', 'locked'],
+    category: 'search'
   },
   {
-    id: "dispatch",
-    title: "Running PDMShell Scripts from Dispatch",
+    id: 'dispatch',
+    title: 'Running PDMShell Scripts from Dispatch',
     content: `When you want to run PDMShell scripts from Dispatch, you can use the Shell Command action.
 
 Shell Command Settings:
@@ -1545,12 +1545,12 @@ quit
 Tips:
 - Test your scripts independently before integrating with Dispatch.
 - Use quotes for paths and parameters if they contain spaces.`,
-    keywords: ["dispatch", "shell command", "pdmcli", "automation", "workflow", "parameter", "integration"],
-    category: "scripting"
+    keywords: ['dispatch', 'shell command', 'pdmcli', 'automation', 'workflow', 'parameter', 'integration'],
+    category: 'scripting'
   },
   {
-    id: "escapingquotes",
-    title: "Quote Escaping Rules",
+    id: 'escapingquotes',
+    title: 'Quote Escaping Rules',
     content: `Learn how to properly escape quotes when calling PDMShell from cmd.exe, Dispatch, or inside a PDMShell session.
 
 When calling from command line (cmd.exe or Dispatch):
@@ -1565,12 +1565,12 @@ To escape ", use \\":
 setvar -filePath membrane.sldprt -VariableName Description -value "3/1"
 setvar -filePath membrane.sldprt -VariableName Description -value "3/\\"1"
 # Result: 3/"1`,
-    keywords: ["escaping", "quotes", "escape", "cmd", "command line", "dispatch", "backslash", "special characters"],
-    category: "scripting"
+    keywords: ['escaping', 'quotes', 'escape', 'cmd', 'command line', 'dispatch', 'backslash', 'special characters'],
+    category: 'scripting'
   },
   {
-    id: "scripting",
-    title: "Scripting in PDMShell",
+    id: 'scripting',
+    title: 'Scripting in PDMShell',
     content: `PDMShell supports scripting to automate tasks and streamline workflows. Scripts use the .pdmshell file extension and are plain text files.
 
 CREATING A SCRIPT:
@@ -1609,12 +1609,12 @@ REMARKS:
 - Scripts are plain text files with .pdmshell extension.
 - Use comments (#) for documentation.
 - Ensure the file is saved with .pdmshell extension.`,
-    keywords: ["scripting", "script", "automation", "pdmshell", "batch", "workflow", "plain text", "commands", "pdmcli"],
-    category: "scripting"
+    keywords: ['scripting', 'script', 'automation', 'pdmshell', 'batch', 'workflow', 'plain text', 'commands', 'pdmcli'],
+    category: 'scripting'
   },
   {
-    id: "scriptsfromtransition",
-    title: "Running Scripts from Workflow Transitions",
+    id: 'scriptsfromtransition',
+    title: 'Running Scripts from Workflow Transitions',
     content: `When you want to run PDMShell scripts as part of a workflow transition in SOLIDWORKS PDM, you can configure the transition to execute scripts.
 
 Workflow Transition Configuration:
@@ -1638,12 +1638,12 @@ Tips:
 - Always test scripts independently before integrating with workflow transitions.
 - Wrap paths and parameters in quotes if they contain spaces.
 - You must call quit at the end of the script.`,
-    keywords: ["transition", "workflow", "execute command", "pdmcli", "automation", "workflow transition", "state change"],
-    category: "scripting"
+    keywords: ['transition', 'workflow', 'execute command', 'pdmcli', 'automation', 'workflow transition', 'state change'],
+    category: 'scripting'
   },
   {
-    id: "instances",
-    title: "Single Instance Mode",
+    id: 'instances',
+    title: 'Single Instance Mode',
     content: `PDMShell can run in two modes: Multi Instance Mode (default) and Single Instance Mode.
 
 Single instance mode is useful for faster execution and sequential automation pipelines.
@@ -1673,12 +1673,12 @@ Tips:
 - Always include /single in every call.
 - Use proper quote escaping when calling from Dispatch.
 - Use Single Instance mode for sequences; Multi Instance for isolated commands.`,
-    keywords: ["single instance", "multi instance", "instance", "mode", "pdmcli", "performance", "sequential", "uac", "administrator"],
-    category: "system"
+    keywords: ['single instance', 'multi instance', 'instance', 'mode', 'pdmcli', 'performance', 'sequential', 'uac', 'administrator'],
+    category: 'system'
   },
   {
-    id: "introduction",
-    title: "Introduction to PDMShell",
+    id: 'introduction',
+    title: 'Introduction to PDMShell',
     content: `Welcome to PDMShell, the command-line interpreter designed specifically for SOLIDWORKS PDM Professional.
 
 Using the Help System:
@@ -1698,12 +1698,12 @@ As of PDMShell 3.0.1, all command names, parameter names, and values are case-se
 
 Escaping Quotes:
 Depends on where the command originates. See the dedicated escaping quotes article.`,
-    keywords: ["introduction", "getting started", "help", "commands", "syntax", "parameters", "case sensitive", "overview"],
-    category: "general"
+    keywords: ['introduction', 'getting started', 'help', 'commands', 'syntax', 'parameters', 'case sensitive', 'overview'],
+    category: 'general'
   },
   {
-    id: "parameter_short_format",
-    title: "Short Format for Parameters",
+    id: 'parameter_short_format',
+    title: 'Short Format for Parameters',
     content: `PDMShell supports short formats for many of its parameters to make commands more concise and easier to use.
 
 Complete List of Parameters and Their Short Formats:
@@ -1755,12 +1755,12 @@ Complete List of Parameters and Their Short Formats:
 Usage Example:
 Full format: setvar -filePath "C:\\Vault\\File.sldprt" -variableName "VariableName" -value "NewValue"
 Short format: setvar -f "C:\\Vault\\File.sldprt" -var "VariableName" -val "NewValue"`,
-    keywords: ["short format", "abbreviation", "parameter", "shortcut", "alias", "concise", "shorthand"],
-    category: "general"
+    keywords: ['short format', 'abbreviation', 'parameter', 'shortcut', 'alias', 'concise', 'shorthand'],
+    category: 'general'
   },
   {
-    id: "faq",
-    title: "Frequently Asked Questions",
+    id: 'faq',
+    title: 'Frequently Asked Questions',
     content: `FAQ for PDMShell:
 
 1. What is PDMShell?
@@ -1782,12 +1782,12 @@ PDMShell is a command-line environment for SOLIDWORKS PDM Professional for autom
 7. Report bugs: Email support@bluebyte.biz or use bluebyte.biz/contact.
 
 8. Free version commands: All search-related commands are free (limited to 5 items per run).`,
-    keywords: ["faq", "frequently asked questions", "help", "troubleshooting", "install", "update", "requirements", "system", "support"],
-    category: "general"
+    keywords: ['faq', 'frequently asked questions', 'help', 'troubleshooting', 'install', 'update', 'requirements', 'system', 'support'],
+    category: 'general'
   },
   {
-    id: "howtoinstall",
-    title: "How to Install/Update PDMShell",
+    id: 'howtoinstall',
+    title: 'How to Install/Update PDMShell',
     content: `PDMShell can be installed or updated from the official website or via the Microsoft Store. The website is recommended for the latest version.
 
 Installation Methods:
@@ -1806,12 +1806,12 @@ System Requirements:
 - Operating System: Windows 10/11
 - SOLIDWORKS PDM Professional: Version 2014 or newer
 - SOLIDWORKS 3D: Version 2017 or newer (for SOLIDWORKS-dependent commands)`,
-    keywords: ["install", "update", "download", "microsoft store", "website", "setup", "requirements", "windows", "administrator"],
-    category: "general"
+    keywords: ['install', 'update', 'download', 'microsoft store', 'website', 'setup', 'requirements', 'windows', 'administrator'],
+    category: 'general'
   },
   {
-    id: "runswmacro",
-    title: "RUNSWMACRO Command",
+    id: 'runswmacro',
+    title: 'RUNSWMACRO Command',
     content: `The RunSWMacro command allows you to execute a SOLIDWORKS macro on a specific file or on multiple files found via search in the PDM vault. This is useful for automating repetitive tasks or applying custom logic to many files.
 
 SYNTAX:
@@ -1878,12 +1878,12 @@ Use the callback.AppendMessage() method to provide progress updates during macro
 EXAMPLES:
 runswmacro -filePath "Macros/BatchExport.swp" -search "%.sldprt"
 runswmacro -filePath "Macros/MyMacro.dll" -search "%.sldprt" -timeout 12000`,
-    keywords: ["runswmacro", "macro", "solidworks macro", "swp", "dll", "automation", "batch", "vba", "execute macro", "nuget", "csharp"],
-    category: "scripting"
+    keywords: ['runswmacro', 'macro', 'solidworks macro', 'swp', 'dll', 'automation', 'batch', 'vba', 'execute macro', 'nuget', 'csharp'],
+    category: 'scripting'
   },
   {
-    id: "releasenotes",
-    title: "PDMShell Release Notes",
+    id: 'releasenotes',
+    title: 'PDMShell Release Notes',
     content: `Release notes and changelog for PDMShell versions.
 
 IMPORTANT: To update PDMShell properly, download the latest version, uninstall PDMShell and then install the latest version. Do not update the installed version.
@@ -1963,12 +1963,12 @@ IMPORTANT: To update PDMShell properly, download the latest version, uninstall P
 - Added release notes page.
 - Fixed some minor typos for the delete and destroy commands.
 - Changed toolbar icons and tooltips for better UX.`,
-    keywords: ["release notes", "changelog", "version", "update", "new features", "bug fix", "history", "3.0"],
-    category: "general"
+    keywords: ['release notes', 'changelog', 'version', 'update', 'new features', 'bug fix', 'history', '3.0'],
+    category: 'general'
   },
   {
-    id: "eula",
-    title: "PDMShell End User License Agreement (EULA)",
+    id: 'eula',
+    title: 'PDMShell End User License Agreement (EULA)',
     content: `End User License Agreement for PDMShell software by Blue Byte Systems Inc.
 
 1. Introduction: This EULA is a legal agreement between you (Licensee) and Blue Byte Systems Inc. (Licensor), governing your use of the PDMShell software product and any associated documentation. By installing, copying, automating, or otherwise using the Software, you agree to be bound by the terms of this EULA.
@@ -1998,18 +1998,18 @@ The Software may collect certain metadata about the machine (IP address, SOLIDWO
 12. Severability: Invalid provisions shall be struck; remaining provisions remain in effect.
 
 13. Contact: Blue Byte Systems Inc. Email: amen@bluebyte.biz`,
-    keywords: ["eula", "license", "agreement", "terms", "legal", "restrictions", "warranty", "liability", "blue byte"],
-    category: "general"
+    keywords: ['eula', 'license', 'agreement', 'terms', 'legal', 'restrictions', 'warranty', 'liability', 'blue byte'],
+    category: 'general'
   },
   {
-    id: "versionupgradefromsource",
-    title: "VERSIONUPGRADEFROMSOURCE Command",
+    id: 'versionupgradefromsource',
+    title: 'VERSIONUPGRADEFROMSOURCE Command',
     content: `The VERSIONUPGRADEFROMSOURCE command checks and upgrades SOLIDWORKS PDM file versions from a CSV source, performs reference validation, and optionally exports broken references to CSV.
 
 STATUS: This command is reserved but NOT YET IMPLEMENTED. It was added in version 3.0.13 as a placeholder for future functionality.
 
 When implemented, this command will extend the VERSIONUPGRADE command to accept a CSV source file of file paths, similar to how other "fromsource" commands work (e.g., SEARCHFROMSOURCE, SETVARSFROMSOURCE, RENAMEFROMSOURCE).`,
-    keywords: ["versionupgradefromsource", "version upgrade", "csv", "source", "not implemented", "reserved", "future"],
-    category: "version-control"
+    keywords: ['versionupgradefromsource', 'version upgrade', 'csv', 'source', 'not implemented', 'reserved', 'future'],
+    category: 'version-control'
   }
-];
+]

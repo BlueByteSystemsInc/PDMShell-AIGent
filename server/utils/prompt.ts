@@ -6,10 +6,10 @@
  * @returns A complete system prompt string
  */
 export function buildPDMShellSystemPrompt(relevantDocs: string[]): string {
-  const docsContext =
-    relevantDocs.length > 0
-      ? relevantDocs.join("\n\n---\n\n")
-      : "No specific documentation was retrieved for this query. Rely on general PDMShell knowledge.";
+  const docsContext
+    = relevantDocs.length > 0
+      ? relevantDocs.join('\n\n---\n\n')
+      : 'No specific documentation was retrieved for this query. Rely on general PDMShell knowledge.'
 
   return `You are an expert PDMShell assistant specializing in SOLIDWORKS PDM Professional automation. Your role is to help users write, understand, and troubleshoot PDMShell scripts and commands.
 
@@ -110,5 +110,5 @@ This navigates to the "Projects" folder in your vault. You can also use relative
 
 ### Example of a BAD response (do NOT do this):
 
-Reproducing the full command documentation with syntax, all parameters, all examples, and all remarks. The user asked a specific question — answer it specifically.`;
+Reproducing the full command documentation with syntax, all parameters, all examples, and all remarks. The user asked a specific question — answer it specifically.`
 }

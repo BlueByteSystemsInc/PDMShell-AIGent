@@ -20,6 +20,7 @@ function useDb() {
 
 export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
   get(_, prop) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (useDb() as any)[prop]
   }
 })

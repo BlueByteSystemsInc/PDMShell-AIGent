@@ -131,13 +131,13 @@ onMounted(() => {
         >
           <template #footer>
             <div class="flex items-center gap-1.5">
-              <span class="inline-flex items-center gap-1 text-xs text-dimmed">
+              <span class="inline-flex items-center gap-1 text-xs text-muted">
                 <UIcon name="i-lucide-cpu" class="size-3.5" />
                 <span>Llama 3.3 70B</span>
               </span>
-              <span class="text-dimmed/40">·</span>
+              <span class="text-muted/50">·</span>
               <UTooltip text="PDMShell documentation is automatically retrieved for each query">
-                <span class="inline-flex items-center gap-1 text-xs text-dimmed hover:text-muted cursor-default transition-colors">
+                <span class="inline-flex items-center gap-1 text-xs text-muted hover:text-highlighted cursor-default transition-colors">
                   <UIcon name="i-lucide-book-open" class="size-3.5" />
                   <span>RAG</span>
                 </span>
