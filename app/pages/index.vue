@@ -25,7 +25,11 @@ async function createChat(prompt: string) {
   })
 
   refreshNuxtData('chats')
-  navigateTo(`/chat/${chat?.id}`)
+
+  // Defer navigation to next frame so the view transition starts smoothly
+  requestAnimationFrame(() => {
+    navigateTo(`/chat/${chat?.id}`)
+  })
 }
 
 async function onSubmit() {
@@ -72,9 +76,6 @@ const quickChats = [
           <h1 class="text-3xl sm:text-4xl text-highlighted font-bold">
             PDMShell Assistant
           </h1>
-          <p class="text-muted mt-1">
-            Describe what you need in plain English. I'll generate the PDMShell script.
-          </p>
         </div>
 
         <UChatPrompt

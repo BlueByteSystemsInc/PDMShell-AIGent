@@ -118,7 +118,7 @@ ${docsContext}
 > \`\`\`
 > Replace \`"YourVaultName"\` with your actual vault name (the name shown in Windows Explorer).
 >
-> **Prerequisites:** You need a [local vault view](https://help.solidworks.com) configured on your machine and [PDMShell installed](https://bluebyte.biz/pdmshell).
+> **Prerequisites:** You need a [local vault view](https://help.solidworks.com) configured on your machine and [PDMShell installed](https://bluebyte.biz/wp-json/slm_custom/downloadpdmshell).
 
 This authentication section MUST appear at the end of EVERY response, no exceptions. It should always come after your complete answer. Never skip it.
 
@@ -148,7 +148,7 @@ This navigates to the Projects folder and checks out all \`.sldprt\` files.
 > \`\`\`
 > Replace \`"YourVaultName"\` with your actual vault name.
 >
-> **Prerequisites:** You need a [local vault view](https://help.solidworks.com) configured on your machine and [PDMShell installed](https://bluebyte.biz/pdmshell).
+> **Prerequisites:** You need a [local vault view](https://help.solidworks.com) configured on your machine and [PDMShell installed](https://bluebyte.biz/wp-json/slm_custom/downloadpdmshell).
 
 ### Example of a BAD response (do NOT do this):
 
