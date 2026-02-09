@@ -82,7 +82,7 @@ onMounted(() => {
 <template>
   <UDashboardPanel id="chat" class="relative" :ui="{ body: 'p-0 sm:p-0' }">
     <template #header>
-      <DashboardNavbar />
+      <DashboardNavbar :title="pageTitle" />
     </template>
 
     <template #body>
@@ -95,6 +95,19 @@ onMounted(() => {
           :spacing-offset="160"
           class="lg:pt-(--ui-header-height) pb-4 sm:pb-6"
         >
+          <template #actions="{ message }">
+            <UTooltip v-if="message.role === 'assistant' && chat.status !== 'streaming'" text="Copy">
+              <UButton
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                :icon="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                aria-label="Copy message"
+                @click="copy($event, message)"
+              />
+            </UTooltip>
+          </template>
+
           <template #content="{ message }">
             <template v-for="(part, index) in message.parts" :key="`${message.id}-${part.type}-${index}${'state' in part ? `-${part.state}` : ''}`">
               <Reasoning

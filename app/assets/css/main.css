@@ -21,10 +21,10 @@
   --ui-container: var(--container-3xl);
 }
 
-/* WCAG AA contrast fixes for Shiki comment tokens */
-.dark pre span[style*="#676E95" i] {
+/* WCAG AA contrast fixes for Shiki comment tokens (browsers store inline styles as rgb) */
+.dark .shiki span[style*="rgb(103, 110, 149)"] {
   color: #8790b5 !important;
 }
-pre span[style*="#90A4AE" i] {
+.shiki span[style*="rgb(144, 164, 174)"] {
   color: #607078 !important;
 }
