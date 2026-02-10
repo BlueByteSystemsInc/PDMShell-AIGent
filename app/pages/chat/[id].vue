@@ -16,35 +16,49 @@ const components = {
 /**
  * Transforms GFM-style alert blockquotes into MDC ::callout container blocks.
  *
- * Converts:
- *   > [!WARNING]
- *   > Be careful with this command
+ * Converts patterns like:
+ *   > [!WARNING]           !WARNING Content       !WARNING
+ *   > Content              [!WARNING] Content      Next-line content
  *
  * Into:
  *   ::callout{type="warning"}
- *   Be careful with this command
+ *   Content
  *   ::
  */
+
+const CALLOUT_TYPES = 'NOTE|TIP|WARNING|CAUTION|IMPORTANT'
+const CALLOUT_RE_BRACKET = `\\[!(${CALLOUT_TYPES})\\]`
+const CALLOUT_RE_BARE = `!(${CALLOUT_TYPES})`
+const CALLOUT_TYPE_RE = `(?:${CALLOUT_RE_BRACKET}|${CALLOUT_RE_BARE})`
+
 function transformCallouts(md: string): string {
-  // Pass 1: blockquote-prefixed alerts — > [!TYPE] or > !TYPE
+  // Pass 1: blockquote-prefixed alerts — > [!TYPE] or > !TYPE (with optional indentation)
   let result = md.replace(
-    /^> *(?:\[!(NOTE|TIP|WARNING|CAUTION)\]|!(NOTE|TIP|WARNING|CAUTION))[ \t]*(.*)\n?((?:^>.*\n?)*)/gm,
+    new RegExp(`^[ \\t]*> *${CALLOUT_TYPE_RE}[ \\t]*(.*)\\n?((?:^[ \\t]*>.*\\n?)*)`, 'gim'),
     (_match, b, bare, firstLine, rest) => {
       const type = (b || bare).toLowerCase()
-      const body = collectBody(firstLine, rest, /^>\s?/)
-      return `::callout{type="${type}"}\n${body}\n::\n`
+      const body = collectBody(firstLine, rest, /^[ \t]*>\s?/)
+      return `\n::callout{type="${type}"}\n${body}\n::\n`
     }
   )
 
-  // Pass 2: bare alerts (no > prefix) — [!TYPE] or !TYPE at start of line
+  // Pass 2: bare alerts with content on the same line (with optional indentation)
   result = result.replace(
-    /^(?:\[!(NOTE|TIP|WARNING|CAUTION)\]|!(NOTE|TIP|WARNING|CAUTION))[ \t]+(.*)/gm,
+    new RegExp(`^[ \\t]*${CALLOUT_TYPE_RE}[ \\t]+(.+)`, 'gim'),
     (_match, b, bare, content) => {
       const type = (b || bare).toLowerCase()
       const body = content.trim()
-      return body
-        ? `::callout{type="${type}"}\n${body}\n::`
-        : `::callout{type="${type}"}\n::`
+      return `\n::callout{type="${type}"}\n${body}\n::\n`
+    }
+  )
+
+  // Pass 3: bare alerts on their own line, content follows on the next line
+  result = result.replace(
+    new RegExp(`^[ \\t]*${CALLOUT_TYPE_RE}[ \\t]*\\n(.+)`, 'gim'),
+    (_match, b, bare, content) => {
+      const type = (b || bare).toLowerCase()
+      const body = content.trim()
+      return `\n::callout{type="${type}"}\n${body}\n::\n`
     }
   )
 

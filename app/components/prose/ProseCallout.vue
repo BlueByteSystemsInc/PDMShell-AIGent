@@ -6,6 +6,7 @@ const props = defineProps<{
 const ALERT_TYPES: Record<string, { icon: string, color: string, label: string }> = {
   note: { icon: 'i-lucide-info', color: 'info', label: 'Note' },
   tip: { icon: 'i-lucide-lightbulb', color: 'success', label: 'Tip' },
+  important: { icon: 'i-lucide-message-circle-warning', color: 'primary', label: 'Important' },
   warning: { icon: 'i-lucide-triangle-alert', color: 'warning', label: 'Warning' },
   caution: { icon: 'i-lucide-circle-alert', color: 'error', label: 'Caution' }
 }
@@ -23,6 +24,7 @@ const config = computed(() => {
     :class="{
       'border-info bg-info/10': config.color === 'info',
       'border-success bg-success/10': config.color === 'success',
+      'border-primary bg-primary/10': config.color === 'primary',
       'border-warning bg-warning/10': config.color === 'warning',
       'border-error bg-error/10': config.color === 'error'
     }"
@@ -32,6 +34,7 @@ const config = computed(() => {
       :class="{
         'text-info': config.color === 'info',
         'text-success': config.color === 'success',
+        'text-primary': config.color === 'primary',
         'text-warning': config.color === 'warning',
         'text-error': config.color === 'error'
       }"

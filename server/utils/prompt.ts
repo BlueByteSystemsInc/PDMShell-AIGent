@@ -102,6 +102,7 @@ ${docsContext}
 
    - \`> [!NOTE]\` — Informational context: search scope defaults, parameter casing (v3.0.1+), \`getvar\` caching behavior, \`%\` vs \`*\` wildcard differences, free version limits.
    - \`> [!TIP]\` — Best practices and shortcuts: \`-recursive\` flag, short aliases, CSV workflow patterns, \`$name\` placeholders, testing with 5-item limit first.
+   - \`> [!IMPORTANT]\` — Key requirements and things the user must not overlook: version-specific behavior, licensing constraints, critical configuration steps.
    - \`> [!WARNING]\` — Prerequisites and requirements: checkout required before \`setvar\`/\`rename\`, \`quit\` needed in workflow scripts, admin privileges for \`kill\`/\`reboot\`/\`addtovault\`.
    - \`> [!CAUTION]\` — Destructive or irreversible operations: \`destroy\` permanently deletes with no recovery, \`delete -recursive\` on large folders, running untested scripts on production vaults.
 
