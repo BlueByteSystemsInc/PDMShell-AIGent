@@ -6,39 +6,49 @@ import type { UIMessage } from 'ai'
 import { useClipboard } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 import ProseStreamPre from '../../components/prose/PreStream.vue'
-import ProseCallout from '../../components/prose/ProseCallout.vue'
 
 const components = {
-  pre: ProseStreamPre as unknown as DefineComponent,
-  callout: ProseCallout as unknown as DefineComponent
+  pre: ProseStreamPre as unknown as DefineComponent
 }
 
 /**
- * Transforms GFM-style alert blockquotes into MDC ::callout container blocks.
+ * Transforms GFM-style alert blockquotes into native Nuxt UI MDC containers.
  *
  * Converts patterns like:
  *   > [!WARNING]           !WARNING Content       !WARNING
  *   > Content              [!WARNING] Content      Next-line content
  *
- * Into:
- *   ::callout{type="warning"}
- *   Content
- *   ::
+ * Into native MDC containers (::note, ::tip, ::warning, ::caution)
+ * or ::callout{color="primary"} for IMPORTANT type.
  */
 
 const CALLOUT_TYPES = 'NOTE|TIP|WARNING|CAUTION|IMPORTANT'
-const CALLOUT_RE_BRACKET = `\\[!(${CALLOUT_TYPES})\\]`
-const CALLOUT_RE_BARE = `!(${CALLOUT_TYPES})`
+const CALLOUT_RE_BRACKET = `(?:\\*\\*)?\\[!(${CALLOUT_TYPES})\\](?:\\*\\*)?`
+const CALLOUT_RE_BARE = `(?:\\*\\*)?!(${CALLOUT_TYPES})(?:\\*\\*)?`
 const CALLOUT_TYPE_RE = `(?:${CALLOUT_RE_BRACKET}|${CALLOUT_RE_BARE})`
 
+const TYPE_TO_MDC: Record<string, string> = {
+  note: 'note',
+  tip: 'tip',
+  warning: 'warning',
+  caution: 'caution',
+  important: 'callout{color="primary" icon="i-lucide-message-circle-warning"}'
+}
+
+function mdcTag(type: string): string {
+  return TYPE_TO_MDC[type] || 'callout{color="neutral"}'
+}
+
 function transformCallouts(md: string): string {
-  // Pass 1: blockquote-prefixed alerts — > [!TYPE] or > !TYPE (with optional indentation)
-  let result = md.replace(
+  let result = md.replace(/\r\n/g, '\n')
+
+  // Pass 1: blockquote-prefixed alerts — > [!TYPE] or > !TYPE (with optional indentation/bold)
+  result = result.replace(
     new RegExp(`^[ \\t]*> *${CALLOUT_TYPE_RE}[ \\t]*(.*)\\n?((?:^[ \\t]*>.*\\n?)*)`, 'gim'),
     (_match, b, bare, firstLine, rest) => {
       const type = (b || bare).toLowerCase()
       const body = collectBody(firstLine, rest, /^[ \t]*>\s?/)
-      return `\n::callout{type="${type}"}\n${body}\n::\n`
+      return `\n::${mdcTag(type)}\n${body}\n::\n`
     }
   )
 
@@ -48,7 +58,7 @@ function transformCallouts(md: string): string {
     (_match, b, bare, content) => {
       const type = (b || bare).toLowerCase()
       const body = content.trim()
-      return `\n::callout{type="${type}"}\n${body}\n::\n`
+      return `\n::${mdcTag(type)}\n${body}\n::\n`
     }
   )
 
@@ -58,7 +68,7 @@ function transformCallouts(md: string): string {
     (_match, b, bare, content) => {
       const type = (b || bare).toLowerCase()
       const body = content.trim()
-      return `\n::callout{type="${type}"}\n${body}\n::\n`
+      return `\n::${mdcTag(type)}\n${body}\n::\n`
     }
   )
 
