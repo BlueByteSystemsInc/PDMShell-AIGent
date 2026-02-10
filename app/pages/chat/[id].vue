@@ -26,28 +26,42 @@ const components = {
  *   ::
  */
 function transformCallouts(md: string): string {
-  return md.replace(
-    /^(?:> *\[!(NOTE|TIP|WARNING|CAUTION)\]|> *!(NOTE|TIP|WARNING|CAUTION))[ \t]*(.*)\n?((?:^>.*\n?)*)/gm,
-    (_match, bracketType, bareType, firstLine, rest) => {
-      const type = (bracketType || bareType).toLowerCase()
-      const bodyLines: string[] = []
-      const trimmedFirst = firstLine?.trim()
-      if (trimmedFirst) {
-        bodyLines.push(trimmedFirst)
-      }
-      if (rest) {
-        const lines = rest.split('\n')
-        for (const line of lines) {
-          const stripped = line.replace(/^>\s?/, '')
-          if (stripped || line.startsWith('>')) {
-            bodyLines.push(stripped)
-          }
-        }
-      }
-      const body = bodyLines.join('\n').trimEnd()
+  // Pass 1: blockquote-prefixed alerts — > [!TYPE] or > !TYPE
+  let result = md.replace(
+    /^> *(?:\[!(NOTE|TIP|WARNING|CAUTION)\]|!(NOTE|TIP|WARNING|CAUTION))[ \t]*(.*)\n?((?:^>.*\n?)*)/gm,
+    (_match, b, bare, firstLine, rest) => {
+      const type = (b || bare).toLowerCase()
+      const body = collectBody(firstLine, rest, /^>\s?/)
       return `::callout{type="${type}"}\n${body}\n::\n`
     }
   )
+
+  // Pass 2: bare alerts (no > prefix) — [!TYPE] or !TYPE at start of line
+  result = result.replace(
+    /^(?:\[!(NOTE|TIP|WARNING|CAUTION)\]|!(NOTE|TIP|WARNING|CAUTION))[ \t]+(.*)/gm,
+    (_match, b, bare, content) => {
+      const type = (b || bare).toLowerCase()
+      const body = content.trim()
+      return body
+        ? `::callout{type="${type}"}\n${body}\n::`
+        : `::callout{type="${type}"}\n::`
+    }
+  )
+
+  return result
+}
+
+function collectBody(firstLine: string | undefined, rest: string | undefined, stripRe: RegExp): string {
+  const lines: string[] = []
+  const trimmed = firstLine?.trim()
+  if (trimmed) lines.push(trimmed)
+  if (rest) {
+    for (const line of rest.split('\n')) {
+      const stripped = line.replace(stripRe, '')
+      if (stripped || line.startsWith('>')) lines.push(stripped)
+    }
+  }
+  return lines.join('\n').trimEnd()
 }
 
 const route = useRoute()
