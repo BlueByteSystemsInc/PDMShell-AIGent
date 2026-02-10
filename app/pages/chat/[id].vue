@@ -6,11 +6,48 @@ import type { UIMessage } from 'ai'
 import { useClipboard } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 import ProseStreamPre from '../../components/prose/PreStream.vue'
-import ProseBlockquote from '../../components/prose/ProseBlockquote.vue'
+import ProseCallout from '../../components/prose/ProseCallout.vue'
 
 const components = {
   pre: ProseStreamPre as unknown as DefineComponent,
-  blockquote: ProseBlockquote as unknown as DefineComponent
+  callout: ProseCallout as unknown as DefineComponent
+}
+
+/**
+ * Transforms GFM-style alert blockquotes into MDC ::callout container blocks.
+ *
+ * Converts:
+ *   > [!WARNING]
+ *   > Be careful with this command
+ *
+ * Into:
+ *   ::callout{type="warning"}
+ *   Be careful with this command
+ *   ::
+ */
+function transformCallouts(md: string): string {
+  return md.replace(
+    /^(?:> *\[!(NOTE|TIP|WARNING|CAUTION)\]|> *!(NOTE|TIP|WARNING|CAUTION))[ \t]*(.*)\n?((?:^>.*\n?)*)/gm,
+    (_match, bracketType, bareType, firstLine, rest) => {
+      const type = (bracketType || bareType).toLowerCase()
+      const bodyLines: string[] = []
+      const trimmedFirst = firstLine?.trim()
+      if (trimmedFirst) {
+        bodyLines.push(trimmedFirst)
+      }
+      if (rest) {
+        const lines = rest.split('\n')
+        for (const line of lines) {
+          const stripped = line.replace(/^>\s?/, '')
+          if (stripped || line.startsWith('>')) {
+            bodyLines.push(stripped)
+          }
+        }
+      }
+      const body = bodyLines.join('\n').trimEnd()
+      return `::callout{type="${type}"}\n${body}\n::\n`
+    }
+  )
 }
 
 const route = useRoute()
@@ -124,7 +161,7 @@ onMounted(() => {
                 <!-- Only render markdown for assistant messages to prevent XSS from user input -->
                 <MDCCached
                   v-else-if="part.type === 'text' && message.role === 'assistant'"
-                  :value="part.text"
+                  :value="transformCallouts(part.text)"
                   :cache-key="`${message.id}-${index}`"
                   :components="components"
                   :parser-options="{ highlight: false }"
