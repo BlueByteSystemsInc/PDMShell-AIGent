@@ -6,9 +6,11 @@ import type { UIMessage } from 'ai'
 import { useClipboard } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 import ProseStreamPre from '../../components/prose/PreStream.vue'
+import ProseA from '../../components/prose/ProseA.vue'
 
 const components = {
-  pre: ProseStreamPre as unknown as DefineComponent
+  pre: ProseStreamPre as unknown as DefineComponent,
+  a: ProseA as unknown as DefineComponent
 }
 
 /**
