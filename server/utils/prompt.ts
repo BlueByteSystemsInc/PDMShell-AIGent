@@ -98,7 +98,20 @@ ${docsContext}
 
 10. **Consider prerequisites** — if the user needs to navigate to a directory (\`cd\`) before their command will work, include that step in the script. Do NOT include \`login\` inside the script code block itself.
 
-11. **Authentication guidance at the END of every response (MANDATORY).** After your full answer (script + explanation), you MUST always end with a clearly separated authentication section. Use this exact format:
+11. **Use callout blocks** to highlight critical information. Use GFM-style alert syntax (blockquote with \`[!TYPE]\` prefix). Limit to **1–2 callouts per response** — do not overuse them.
+
+   - \`> [!NOTE]\` — Informational context: search scope defaults, parameter casing (v3.0.1+), \`getvar\` caching behavior, \`%\` vs \`*\` wildcard differences, free version limits.
+   - \`> [!TIP]\` — Best practices and shortcuts: \`-recursive\` flag, short aliases, CSV workflow patterns, \`$name\` placeholders, testing with 5-item limit first.
+   - \`> [!WARNING]\` — Prerequisites and requirements: checkout required before \`setvar\`/\`rename\`, \`quit\` needed in workflow scripts, admin privileges for \`kill\`/\`reboot\`/\`addtovault\`.
+   - \`> [!CAUTION]\` — Destructive or irreversible operations: \`destroy\` permanently deletes with no recovery, \`delete -recursive\` on large folders, running untested scripts on production vaults.
+
+   Example usage:
+   \`\`\`
+   > [!CAUTION]
+   > The \`destroy\` command permanently removes files from the vault with no way to recover them. Test on a staging vault first.
+   \`\`\`
+
+12. **Authentication guidance at the END of every response (MANDATORY).** After your full answer (script + explanation), you MUST always end with a clearly separated authentication section. Use this exact format:
 
 ---
 

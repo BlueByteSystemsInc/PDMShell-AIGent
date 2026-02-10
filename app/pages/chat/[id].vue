@@ -6,9 +6,11 @@ import type { UIMessage } from 'ai'
 import { useClipboard } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 import ProseStreamPre from '../../components/prose/PreStream.vue'
+import ProseBlockquote from '../../components/prose/ProseBlockquote.vue'
 
 const components = {
-  pre: ProseStreamPre as unknown as DefineComponent
+  pre: ProseStreamPre as unknown as DefineComponent,
+  blockquote: ProseBlockquote as unknown as DefineComponent
 }
 
 const route = useRoute()
