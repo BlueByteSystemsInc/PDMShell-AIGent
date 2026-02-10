@@ -65,7 +65,8 @@ const alertType = computed(() => {
 
   const firstChild = defaultSlot[0]!
   const text = getTextContent(firstChild)
-  const match = text.match(/^\s*\[!(NOTE|WARNING|TIP|CAUTION)\]/)
+  const match = text.match(/^\s*\[?(NOTE|WARNING|TIP|CAUTION)\]?/)
+    || text.match(/^\s*!(?:\[)?(NOTE|WARNING|TIP|CAUTION)\]?/)
   if (match) {
     return match[1] as keyof typeof ALERT_TYPES
   }
@@ -77,11 +78,27 @@ const alertConfig = computed(() => {
   return ALERT_TYPES[alertType.value]
 })
 
-const strippedContent = computed(() => {
+const matchedPrefix = computed(() => {
   if (!alertType.value) return null
   const defaultSlot = slots.default?.()
   if (!defaultSlot?.length) return null
-  return stripAlertPrefix(defaultSlot, `[!${alertType.value}]`)
+  const text = getTextContent(defaultSlot[0]!)
+  const patterns = [
+    `[!${alertType.value}]`,
+    `!${alertType.value}`,
+    alertType.value
+  ]
+  for (const p of patterns) {
+    if (text.includes(p)) return p
+  }
+  return alertType.value
+})
+
+const strippedContent = computed(() => {
+  if (!alertType.value || !matchedPrefix.value) return null
+  const defaultSlot = slots.default?.()
+  if (!defaultSlot?.length) return null
+  return stripAlertPrefix(defaultSlot, matchedPrefix.value)
 })
 </script>
 
