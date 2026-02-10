@@ -134,7 +134,7 @@ defineShortcuts({
     >
       <template #header="{ collapsed }">
         <NuxtLink to="/" class="flex items-center gap-1.5">
-          <Logo class="h-7 w-auto shrink-0" />
+          <img src="/fav.png" alt="PDMShell" class="h-7 w-auto shrink-0">
           <span v-if="!collapsed" class="text-lg font-bold text-highlighted">PDMShell</span>
         </NuxtLink>
 
