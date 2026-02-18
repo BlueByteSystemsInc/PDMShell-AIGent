@@ -1,4 +1,5 @@
-import { pdmshellDocs, type DocChunk } from './pdmshell-docs'
+import type { DocChunk } from './pdmshell-docs'
+import { getDocs, onDocsUpdated } from './doc-store'
 
 /**
  * Synonym map: maps common user terms to terms found in the documentation.
@@ -260,10 +261,11 @@ function scoreDocument(
  * Tokens that appear in fewer documents get higher IDF scores.
  */
 function buildIDFMap(): Map<string, number> {
-  const docCount = pdmshellDocs.length
+  const docs = getDocs()
+  const docCount = docs.length
   const tokenDocCount = new Map<string, number>()
 
-  for (const doc of pdmshellDocs) {
+  for (const doc of docs) {
     const allTokens = new Set<string>([
       ...tokenize(doc.content),
       ...doc.keywords.flatMap(k => tokenize(k)),
@@ -294,6 +296,11 @@ function getIDFMap(): Map<string, number> {
   return _idfMap
 }
 
+// Invalidate IDF cache when docs are updated from GitHub sync
+onDocsUpdated(() => {
+  _idfMap = null
+})
+
 /** Minimum number of results to return when relevant docs exist. */
 const MIN_RESULTS = 5
 /** Maximum number of results to return. */
@@ -323,7 +330,7 @@ export async function retrievePDMShellDocs(
   const expandedTokens = expandWithSynonyms(queryTokens, query)
 
   // Score each document
-  const scored: Array<{ doc: DocChunk, score: number }> = pdmshellDocs.map(
+  const scored: Array<{ doc: DocChunk, score: number }> = getDocs().map(
     doc => ({
       doc,
       score: scoreDocument(doc, expandedTokens, idfMap)
@@ -338,7 +345,7 @@ export async function retrievePDMShellDocs(
 
   if (relevant.length === 0) {
     // Fallback: return introduction and FAQ if nothing matches
-    return pdmshellDocs
+    return getDocs()
       .filter(d => d.id === 'introduction' || d.id === 'faq')
       .map(d => `## ${d.title}\n\n${d.content}`)
   }
