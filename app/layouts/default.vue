@@ -107,7 +107,7 @@ async function deleteChat(id: string) {
 
   // Optimistic: remove from sidebar immediately
   const backup = chats.value
-  chats.value = chats.value?.filter(c => c.id !== id) ?? null
+  chats.value = chats.value?.filter(c => c.id !== id) ?? undefined
 
   if (route.params.id === id) {
     navigateTo('/')
