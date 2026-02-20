@@ -10,14 +10,13 @@ interface MetricConfig {
   key: keyof QuotaState
   label: string
   icon: string
-  short: string
 }
 
 const metrics: MetricConfig[] = [
-  { key: 'rpm', label: 'Requests / min', icon: 'i-lucide-zap', short: 'RPM' },
-  { key: 'rpd', label: 'Requests / day', icon: 'i-lucide-calendar', short: 'RPD' },
-  { key: 'tpm', label: 'Tokens / min', icon: 'i-lucide-hash', short: 'TPM' },
-  { key: 'tpd', label: 'Tokens / day', icon: 'i-lucide-coins', short: 'TPD' }
+  { key: 'rpm', label: 'Requests / min', icon: 'i-lucide-zap' },
+  { key: 'rpd', label: 'Requests / day', icon: 'i-lucide-calendar' },
+  { key: 'tpm', label: 'Tokens / min', icon: 'i-lucide-hash' },
+  { key: 'tpd', label: 'Tokens / day', icon: 'i-lucide-coins' }
 ]
 
 function formatNum(n: number): string {
@@ -36,14 +35,18 @@ function progressColor(percent: number): 'success' | 'warning' | 'error' {
   return 'success'
 }
 
+// Precompute per-metric values to avoid redundant pct() calls in template
+const metricValues = computed(() => {
+  if (!props.quota) return []
+  return metrics.map((m) => {
+    const p = pct(props.quota![m.key])
+    return { ...m, pct: p, color: progressColor(p) }
+  })
+})
+
 const worstPct = computed(() => {
-  if (!props.quota) return 0
-  return Math.max(
-    pct(props.quota.rpm),
-    pct(props.quota.rpd),
-    pct(props.quota.tpm),
-    pct(props.quota.tpd)
-  )
+  if (!metricValues.value.length) return 0
+  return Math.max(...metricValues.value.map(m => m.pct))
 })
 
 const dotColor = computed(() => {
@@ -82,7 +85,7 @@ const resetText = computed(() => {
     >
       <span
         class="size-1.5 rounded-full shrink-0"
-        :class="[dotColor, shouldPulse ? 'animate-pulse' : '']"
+        :class="[dotColor, shouldPulse ? 'motion-safe:animate-pulse' : '']"
       />
       <UIcon name="i-lucide-gauge" class="size-3.5" />
       <span>Quota</span>
@@ -95,7 +98,7 @@ const resetText = computed(() => {
         </p>
 
         <div class="space-y-2.5">
-          <div v-for="m in metrics" :key="m.key">
+          <div v-for="m in metricValues" :key="m.key">
             <div class="flex items-center justify-between mb-1">
               <span class="inline-flex items-center gap-1 text-xs text-muted">
                 <UIcon :name="m.icon" class="size-3" />
@@ -106,9 +109,9 @@ const resetText = computed(() => {
               </span>
             </div>
             <UProgress
-              :model-value="pct(quota[m.key])"
+              :model-value="m.pct"
               size="xs"
-              :color="progressColor(pct(quota[m.key]))"
+              :color="m.color"
             />
           </div>
         </div>

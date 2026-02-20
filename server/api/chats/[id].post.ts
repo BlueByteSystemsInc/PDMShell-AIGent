@@ -51,43 +51,42 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Chat not found' })
   }
 
-  // Generate title from first message (non-critical — wrapped in try-catch)
+  // Fire-and-forget title generation — don't block the stream
   if (!chat.title) {
-    try {
-      const { text: title, usage: titleUsage, response: titleResponse } = await generateText({
-        model: getModel(),
-        system: `You are a title generator for a chat:
+    generateText({
+      model: getModel(),
+      system: `You are a title generator for a chat:
           - Generate a short title based on the first user's message
           - The title should be less than 30 characters long
           - The title should be a summary of the user's message
           - Do not use quotes (' or ") or colons (:) or any other punctuation
           - Do not use markdown, just plain text`,
-        prompt: JSON.stringify(messages[0])
-      })
-
+      prompt: JSON.stringify(messages[0])
+    }).then(async (result) => {
+      const { text: title, usage: titleUsage, response: titleResponse } = result
       recordRequest(titleUsage.totalTokens)
       if (titleResponse.headers) {
         reconcileFromHeaders(titleResponse.headers)
       }
-
       await db.update(schema.chats).set({ title, updatedAt: new Date() }).where(eq(schema.chats.id, id as string))
-    } catch (error) {
+    }).catch((error) => {
       console.error('[PDMShell] Title generation failed:', error)
-      // Continue without title — the chat will show as "Untitled"
-    }
-  }
-
-  const lastMessage = messages[messages.length - 1]
-  if (lastMessage?.role === 'user' && messages.length > 1) {
-    await db.insert(schema.messages).values({
-      chatId: id as string,
-      role: 'user',
-      parts: lastMessage.parts
     })
   }
 
-  // Update chat activity timestamp
-  await db.update(schema.chats).set({ updatedAt: new Date() }).where(eq(schema.chats.id, id as string))
+  // Insert user message + update timestamp in parallel
+  const dbOps: Promise<unknown>[] = [
+    db.update(schema.chats).set({ updatedAt: new Date() }).where(eq(schema.chats.id, id as string))
+  ]
+  const lastMessage = messages[messages.length - 1]
+  if (lastMessage?.role === 'user' && messages.length > 1) {
+    dbOps.push(db.insert(schema.messages).values({
+      chatId: id as string,
+      role: 'user',
+      parts: lastMessage.parts
+    }))
+  }
+  await Promise.all(dbOps)
 
   // Retrieve relevant PDMShell documentation for RAG
   // Use the last 3 user messages for context, weighted toward the most recent

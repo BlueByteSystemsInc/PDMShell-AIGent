@@ -3,7 +3,7 @@ import type { DefineComponent } from 'vue'
 import { Chat } from '@ai-sdk/vue'
 import { DefaultChatTransport } from 'ai'
 import type { UIMessage } from 'ai'
-import { useClipboard } from '@vueuse/core'
+import { useClipboard, useTimeoutFn } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 import type { QuotaState } from '../../composables/useQuota'
 import ProseStreamPre from '../../components/prose/PreStream.vue'
@@ -30,6 +30,11 @@ const CALLOUT_RE_BRACKET = `(?:\\*\\*)?\\[!(${CALLOUT_TYPES})\\](?:\\*\\*)?`
 const CALLOUT_RE_BARE = `(?:\\*\\*)?!(${CALLOUT_TYPES})(?:\\*\\*)?`
 const CALLOUT_TYPE_RE = `(?:${CALLOUT_RE_BRACKET}|${CALLOUT_RE_BARE})`
 
+// Pre-compile regex patterns — avoid re-creating on every call
+const RE_PASS1 = new RegExp(`^[ \\t]*> *${CALLOUT_TYPE_RE}[ \\t]*(.*)\\n?((?:^[ \\t]*>.*\\n?)*)`, 'gim')
+const RE_PASS2 = new RegExp(`^[ \\t]*${CALLOUT_TYPE_RE}[ \\t]+(.+)`, 'gim')
+const RE_PASS3 = new RegExp(`^[ \\t]*${CALLOUT_TYPE_RE}[ \\t]*\\n(.+)`, 'gim')
+
 const TYPE_TO_MDC: Record<string, string> = {
   note: 'note',
   tip: 'tip',
@@ -42,12 +47,19 @@ function mdcTag(type: string): string {
   return TYPE_TO_MDC[type] || 'callout{color="neutral"}'
 }
 
+// Memoization cache for callout transforms — same input always yields same output
+const calloutCache = new Map<string, string>()
+
 function transformCallouts(md: string): string {
+  const cached = calloutCache.get(md)
+  if (cached !== undefined) return cached
+
   let result = md.replace(/\r\n/g, '\n')
 
-  // Pass 1: blockquote-prefixed alerts — > [!TYPE] or > !TYPE (with optional indentation/bold)
+  // Pass 1: blockquote-prefixed alerts
+  RE_PASS1.lastIndex = 0
   result = result.replace(
-    new RegExp(`^[ \\t]*> *${CALLOUT_TYPE_RE}[ \\t]*(.*)\\n?((?:^[ \\t]*>.*\\n?)*)`, 'gim'),
+    RE_PASS1,
     (_match, b, bare, firstLine, rest) => {
       const type = (b || bare).toLowerCase()
       const body = collectBody(firstLine, rest, /^[ \t]*>\s?/)
@@ -55,9 +67,10 @@ function transformCallouts(md: string): string {
     }
   )
 
-  // Pass 2: bare alerts with content on the same line (with optional indentation)
+  // Pass 2: bare alerts with content on the same line
+  RE_PASS2.lastIndex = 0
   result = result.replace(
-    new RegExp(`^[ \\t]*${CALLOUT_TYPE_RE}[ \\t]+(.+)`, 'gim'),
+    RE_PASS2,
     (_match, b, bare, content) => {
       const type = (b || bare).toLowerCase()
       const body = content.trim()
@@ -66,8 +79,9 @@ function transformCallouts(md: string): string {
   )
 
   // Pass 3: bare alerts on their own line, content follows on the next line
+  RE_PASS3.lastIndex = 0
   result = result.replace(
-    new RegExp(`^[ \\t]*${CALLOUT_TYPE_RE}[ \\t]*\\n(.+)`, 'gim'),
+    RE_PASS3,
     (_match, b, bare, content) => {
       const type = (b || bare).toLowerCase()
       const body = content.trim()
@@ -75,6 +89,7 @@ function transformCallouts(md: string): string {
     }
   )
 
+  calloutCache.set(md, result)
   return result
 }
 
@@ -94,7 +109,7 @@ function collectBody(firstLine: string | undefined, rest: string | undefined, st
 const route = useRoute()
 const toast = useToast()
 const clipboard = useClipboard()
-const { quota, provider, modelDisplayName, fetchQuota, updateFromStreamData } = useQuota()
+const { quota, provider, modelDisplayName, updateFromStreamData } = useQuota()
 
 const { data, refresh: refreshChat } = await useFetch(`/api/chats/${route.params.id}`, {
   key: `chat-${route.params.id}`
@@ -134,7 +149,7 @@ const chat = new Chat({
   }
 })
 
-async function handleSubmit(e: Event) {
+function handleSubmit(e: Event) {
   e.preventDefault()
   if (input.value.trim()) {
     chat.sendMessage({
@@ -145,19 +160,17 @@ async function handleSubmit(e: Event) {
 }
 
 const copied = ref(false)
+const { start: resetCopied } = useTimeoutFn(() => {
+  copied.value = false
+}, 2000, { immediate: false })
 
-function copy(e: MouseEvent, message: UIMessage) {
+function copy(_e: MouseEvent, message: UIMessage) {
   clipboard.copy(getTextFromMessage(message))
-
   copied.value = true
-
-  setTimeout(() => {
-    copied.value = false
-  }, 2000)
+  resetCopied()
 }
 
 onMounted(() => {
-  fetchQuota()
   if (data.value?.messages.length === 1) {
     chat.regenerate()
   }

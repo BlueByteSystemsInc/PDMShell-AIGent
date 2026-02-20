@@ -1,11 +1,7 @@
 <script setup lang="ts">
 // No title set — falls through to titleTemplate default: "PDMShell Assistant"
 
-const { quota, provider, modelDisplayName, fetchQuota } = useQuota()
-
-onMounted(() => {
-  fetchQuota()
-})
+const { quota, provider, modelDisplayName } = useQuota()
 
 const input = ref('')
 const loading = ref(false)

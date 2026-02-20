@@ -73,13 +73,29 @@
   animation: message-in 250ms ease-out both;
 }
 
-/* Smooth auto-scroll for chat messages container */
+/* Use auto scroll — smooth causes jank during rapid streaming */
 [data-role="chat-messages"] {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 /* Streaming content: reduce layout shift */
 .streaming-content {
   will-change: transform;
   min-height: 1.5em;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .chat-message-enter {
+    animation: none;
+  }
+  .streaming-content {
+    will-change: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(chat-prompt),
+  ::view-transition-new(chat-prompt) {
+    animation: none;
+  }
 }

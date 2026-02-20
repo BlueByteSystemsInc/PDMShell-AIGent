@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   ],
 
   devtools: {
-    enabled: true
+    enabled: process.env.NODE_ENV !== 'production'
   },
 
   css: ['~/assets/css/main.css'],
@@ -17,9 +17,12 @@ export default defineNuxtConfig({
       anchorLinks: false
     },
     highlight: {
-      // noApiRoute: true
-      shikiEngine: 'javascript'
+      shikiEngine: 'wasm'
     }
+  },
+
+  routeRules: {
+    '/api/config': { cache: { maxAge: 600 } }
   },
 
   experimental: {

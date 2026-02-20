@@ -16,7 +16,8 @@ const deleteModal = overlay.create(LazyModalConfirm, {
   }
 })
 
-const { data: chats, refresh: refreshChats } = await useFetch('/api/chats', {
+// Lazy fetch — don't block layout render while chats load
+const { data: chats, status: chatsStatus, refresh: _refreshChats } = useLazyFetch('/api/chats', {
   key: 'chats',
   transform: data => data.map(chat => ({
     id: chat.id,
@@ -26,11 +27,18 @@ const { data: chats, refresh: refreshChats } = await useFetch('/api/chats', {
   }))
 })
 
-// Preload first 10 chats in parallel for faster navigation
+// Fetch quota once at app level — pages share via useState
+const { fetchQuota } = useQuota()
+onMounted(() => {
+  fetchQuota()
+})
+
+// Preload first 5 chats for faster navigation (reduced from 10)
 onNuxtReady(async () => {
-  const first10 = (chats.value || []).slice(0, 10)
+  const first5 = (chats.value || []).slice(0, 5)
+  if (first5.length === 0) return
   await Promise.allSettled(
-    first10.map(chat => $fetch(`/api/chats/${chat.id}`).catch(() => null))
+    first5.map(chat => $fetch(`/api/chats/${chat.id}`).catch(() => null))
   )
 })
 
@@ -97,18 +105,29 @@ async function deleteChat(id: string) {
     return
   }
 
-  await $fetch(`/api/chats/${id}`, { method: 'DELETE' })
-
-  toast.add({
-    title: 'Chat deleted',
-    description: 'Your chat has been deleted',
-    icon: 'i-lucide-trash'
-  })
-
-  refreshChats()
+  // Optimistic: remove from sidebar immediately
+  const backup = chats.value
+  chats.value = chats.value?.filter(c => c.id !== id) ?? null
 
   if (route.params.id === id) {
     navigateTo('/')
+  }
+
+  try {
+    await $fetch(`/api/chats/${id}`, { method: 'DELETE' })
+    toast.add({
+      title: 'Chat deleted',
+      description: 'Your chat has been deleted',
+      icon: 'i-lucide-trash'
+    })
+  } catch {
+    // Restore on failure
+    chats.value = backup
+    toast.add({
+      title: 'Failed to delete chat',
+      icon: 'i-lucide-alert-circle',
+      color: 'error'
+    })
   }
 }
 
@@ -162,8 +181,14 @@ defineShortcuts({
         </div>
 
         <template v-if="!collapsed">
+          <!-- Skeleton while chats are loading -->
+          <div v-if="chatsStatus === 'pending'" class="flex flex-col gap-2 px-2 py-3">
+            <USkeleton class="h-3 w-16 rounded" />
+            <USkeleton v-for="i in 5" :key="i" class="h-8 w-full rounded" />
+          </div>
+
           <UNavigationMenu
-            v-if="hasChats"
+            v-else-if="hasChats"
             :items="items"
             :collapsed="collapsed"
             orientation="vertical"

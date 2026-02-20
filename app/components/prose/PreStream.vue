@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ShikiCachedRenderer } from 'shiki-stream/vue'
-import { useClipboard } from '@vueuse/core'
+import { useClipboard, useTimeoutFn } from '@vueuse/core'
 
 const colorMode = useColorMode()
 const highlighter = await useHighlighter()
@@ -16,32 +16,29 @@ const props = defineProps<{
 const trimmedCode = computed(() => {
   return props.code.trim().replace(/`+$/, '')
 })
+
+const LANG_MAP: Record<string, string> = {
+  javascript: 'js',
+  typescript: 'ts'
+}
+
 const lang = computed(() => {
-  switch (props.language) {
-    case 'vue':
-      return 'vue'
-    case 'javascript':
-      return 'js'
-    case 'typescript':
-      return 'ts'
-    case 'css':
-      return 'css'
-    default:
-      return props.language
-  }
+  return LANG_MAP[props.language] || props.language
 })
+
 const key = computed(() => {
   return `${lang.value}-${colorMode.value}`
 })
 
 const copied = ref(false)
+const { start: resetCopied } = useTimeoutFn(() => {
+  copied.value = false
+}, 2000, { immediate: false })
 
 function copyCode() {
   clipboard.copy(trimmedCode.value)
   copied.value = true
-  setTimeout(() => {
-    copied.value = false
-  }, 2000)
+  resetCopied()
 }
 </script>
 

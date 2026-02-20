@@ -296,9 +296,37 @@ function getIDFMap(): Map<string, number> {
   return _idfMap
 }
 
-// Invalidate IDF cache when docs are updated from GitHub sync
+// LRU cache for RAG query results — avoids rescoring all docs on repeated queries
+const RAG_CACHE_MAX = 50
+const _ragCache = new Map<string, string[]>()
+
+function ragCacheKey(query: string): string {
+  return tokenize(query).sort().join('|')
+}
+
+function ragCacheGet(key: string): string[] | undefined {
+  const result = _ragCache.get(key)
+  if (result) {
+    // Move to end (most recently used)
+    _ragCache.delete(key)
+    _ragCache.set(key, result)
+  }
+  return result
+}
+
+function ragCacheSet(key: string, value: string[]) {
+  if (_ragCache.size >= RAG_CACHE_MAX) {
+    // Evict oldest entry
+    const oldest = _ragCache.keys().next().value
+    if (oldest !== undefined) _ragCache.delete(oldest)
+  }
+  _ragCache.set(key, value)
+}
+
+// Invalidate IDF + RAG caches when docs are updated from GitHub sync
 onDocsUpdated(() => {
   _idfMap = null
+  _ragCache.clear()
 })
 
 /** Minimum number of results to return when relevant docs exist. */
@@ -325,6 +353,11 @@ export async function retrievePDMShellDocs(
   if (queryTokens.length === 0) {
     return []
   }
+
+  // Check LRU cache first
+  const cacheKey = ragCacheKey(query)
+  const cached = ragCacheGet(cacheKey)
+  if (cached) return cached
 
   const idfMap = getIDFMap()
   const expandedTokens = expandWithSynonyms(queryTokens, query)
@@ -367,7 +400,10 @@ export async function retrievePDMShellDocs(
 
   const finalCount = Math.min(resultCount, relevant.length)
 
-  return relevant.slice(0, finalCount).map(({ doc }) => {
+  const results = relevant.slice(0, finalCount).map(({ doc }) => {
     return `## ${doc.title}\n\n${doc.content}`
   })
+
+  ragCacheSet(cacheKey, results)
+  return results
 }

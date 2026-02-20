@@ -1,26 +1,29 @@
 <script setup lang="ts">
-const { isStreaming = false } = defineProps<{
+const props = defineProps<{
   text: string
   isStreaming?: boolean
 }>()
 
-const open = ref(false)
+const open = computed(() => props.isStreaming ?? false)
+const openModel = ref(open.value)
 
-watch(() => isStreaming, () => {
-  open.value = isStreaming
-}, { immediate: true })
+watch(open, (v) => {
+  openModel.value = v
+})
 
-function cleanMarkdown(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold
-    .replace(/\*(.+?)\*/g, '$1') // Remove italic
-    .replace(/`(.+?)`/g, '$1') // Remove inline code
-    .replace(/^#+\s+/gm, '') // Remove headers
-}
+const lines = computed(() => {
+  return props.text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/^#+\s+/gm, '')
+    .split('\n')
+    .filter(Boolean)
+})
 </script>
 
 <template>
-  <UCollapsible v-model:open="open" class="flex flex-col gap-1 my-5">
+  <UCollapsible v-model:open="openModel" class="flex flex-col gap-1 my-5">
     <UButton
       class="p-0 group"
       color="neutral"
@@ -33,7 +36,7 @@ function cleanMarkdown(text: string): string {
     />
 
     <template #content>
-      <div v-for="(value, index) in cleanMarkdown(text).split('\n').filter(Boolean)" :key="index">
+      <div v-for="(value, index) in lines" :key="index">
         <span class="whitespace-pre-wrap text-sm text-muted font-normal">{{ value }}</span>
       </div>
     </template>
