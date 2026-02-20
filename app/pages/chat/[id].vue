@@ -187,6 +187,33 @@ function isStreaming(message: UIMessage): boolean {
     && message === chat.messages[chat.messages.length - 1]
 }
 
+const thinkingMessages = [
+  'Searching PDMShell docs',
+  'Parsing vault structure',
+  'Crafting your script',
+  'Cross-referencing commands',
+  'Connecting the dots',
+  'Assembling the response'
+]
+const thinkingIndex = ref(0)
+let thinkingInterval: ReturnType<typeof setInterval> | null = null
+
+watch(() => chat.status, (status) => {
+  if (status === 'submitted') {
+    thinkingIndex.value = 0
+    thinkingInterval = setInterval(() => {
+      thinkingIndex.value = (thinkingIndex.value + 1) % thinkingMessages.length
+    }, 2400)
+  } else if (thinkingInterval) {
+    clearInterval(thinkingInterval)
+    thinkingInterval = null
+  }
+})
+
+onUnmounted(() => {
+  if (thinkingInterval) clearInterval(thinkingInterval)
+})
+
 onMounted(() => {
   if (data.value?.messages.length === 1) {
     chat.regenerate()
@@ -225,12 +252,15 @@ onMounted(() => {
 
           <template #indicator>
             <div class="thinking-indicator">
-              <span class="thinking-dots">
-                <span class="thinking-dot" />
-                <span class="thinking-dot" />
-                <span class="thinking-dot" />
-              </span>
-              <span class="thinking-label">Analyzing docs...</span>
+              <div class="thinking-orbit">
+                <div class="thinking-ring" />
+                <div class="thinking-particle" />
+              </div>
+              <Transition name="thinking-fade" mode="out-in">
+                <span :key="thinkingIndex" class="thinking-label">
+                  {{ thinkingMessages[thinkingIndex] }}
+                </span>
+              </Transition>
             </div>
           </template>
 
@@ -248,7 +278,7 @@ onMounted(() => {
                 <!-- Only render markdown for assistant messages to prevent XSS from user input -->
                 <MDCCached
                   v-else-if="part.type === 'text' && message.role === 'assistant'"
-                  :value="isStreaming(message) ? part.text : transformCallouts(part.text)"
+                  :value="transformCallouts(part.text)"
                   :cache-key="`${message.id}-${index}`"
                   :components="components"
                   :parser-options="{ highlight: false }"
