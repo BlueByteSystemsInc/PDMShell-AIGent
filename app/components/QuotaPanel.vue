@@ -3,6 +3,7 @@ import type { QuotaState } from '../composables/useQuota'
 
 const props = defineProps<{
   quota: QuotaState | null
+  provider?: string
 }>()
 
 interface MetricConfig {
@@ -90,7 +91,7 @@ const resetText = computed(() => {
     <template #content>
       <div class="w-72 p-3">
         <p class="text-xs font-medium text-highlighted mb-3">
-          Groq Free Tier Usage
+          {{ provider || 'API' }} Free Tier Usage
         </p>
 
         <div class="space-y-2.5">

@@ -5,6 +5,7 @@ import { DefaultChatTransport } from 'ai'
 import type { UIMessage } from 'ai'
 import { useClipboard } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
+import type { QuotaState } from '../../composables/useQuota'
 import ProseStreamPre from '../../components/prose/PreStream.vue'
 import ProseA from '../../components/prose/ProseA.vue'
 
@@ -93,7 +94,7 @@ function collectBody(firstLine: string | undefined, rest: string | undefined, st
 const route = useRoute()
 const toast = useToast()
 const clipboard = useClipboard()
-const { quota, fetchQuota, updateFromStreamData } = useQuota()
+const { quota, provider, modelDisplayName, fetchQuota, updateFromStreamData } = useQuota()
 
 const { data, refresh: refreshChat } = await useFetch(`/api/chats/${route.params.id}`, {
   key: `chat-${route.params.id}`
@@ -119,7 +120,7 @@ const chat = new Chat({
       refreshChat()
     }
     if (dataPart.type === 'data-quota') {
-      updateFromStreamData(dataPart.data)
+      updateFromStreamData(dataPart.data as QuotaState)
     }
   },
   onError(error) {
@@ -233,11 +234,11 @@ onMounted(() => {
         >
           <template #footer>
             <div class="flex items-center gap-1.5">
-              <span class="inline-flex items-center gap-1 text-xs text-muted">
+              <span v-if="modelDisplayName" class="inline-flex items-center gap-1 text-xs text-muted">
                 <UIcon name="i-lucide-cpu" class="size-3.5" />
-                <span>Llama 3.3 70B</span>
+                <span>{{ modelDisplayName }}</span>
               </span>
-              <span class="text-muted/50">·</span>
+              <span v-if="modelDisplayName" class="text-muted/50">·</span>
               <UTooltip text="PDMShell documentation is automatically retrieved for each query">
                 <span class="inline-flex items-center gap-1 text-xs text-muted hover:text-highlighted cursor-default transition-colors">
                   <UIcon name="i-lucide-book-open" class="size-3.5" />
@@ -246,7 +247,7 @@ onMounted(() => {
               </UTooltip>
               <template v-if="quota">
                 <span class="text-muted/50">&middot;</span>
-                <QuotaPanel :quota="quota" />
+                <QuotaPanel :quota="quota" :provider="provider" />
               </template>
               <template v-if="chat.status === 'streaming'">
                 <span class="text-dimmed/40">·</span>

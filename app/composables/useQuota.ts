@@ -12,12 +12,23 @@ export interface QuotaState {
   tpd: QuotaMetric
 }
 
+interface AIConfigResponse {
+  provider: string
+  modelDisplayName: string
+  quota: QuotaState
+}
+
 export function useQuota() {
   const quota = useState<QuotaState | null>('quota', () => null)
+  const provider = useState<string>('ai-provider', () => '')
+  const modelDisplayName = useState<string>('ai-model-name', () => '')
 
   async function fetchQuota() {
     try {
-      quota.value = await $fetch<QuotaState>('/api/quota')
+      const data = await $fetch<AIConfigResponse>('/api/config')
+      quota.value = data.quota
+      provider.value = data.provider
+      modelDisplayName.value = data.modelDisplayName
     } catch {
       // Non-critical — quota panel just won't show data
     }
@@ -29,6 +40,8 @@ export function useQuota() {
 
   return {
     quota,
+    provider,
+    modelDisplayName,
     fetchQuota,
     updateFromStreamData
   }

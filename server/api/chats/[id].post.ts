@@ -1,5 +1,4 @@
 import { convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse, generateText, smoothStream, streamText } from 'ai'
-import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
 import { db, schema } from '../../utils/db'
 import { and, eq } from 'drizzle-orm'
@@ -10,14 +9,6 @@ defineRouteMeta({
     description: 'Chat with PDMShell AI Assistant.',
     tags: ['ai']
   }
-})
-
-if (!process.env.GROQ_API_KEY) {
-  throw new Error('GROQ_API_KEY environment variable is required. Set it in .env or your deployment dashboard.')
-}
-
-const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY
 })
 
 /**
@@ -64,7 +55,7 @@ export default defineEventHandler(async (event) => {
   if (!chat.title) {
     try {
       const { text: title, usage: titleUsage, response: titleResponse } = await generateText({
-        model: groq('llama-3.3-70b-versatile'),
+        model: getModel(),
         system: `You are a title generator for a chat:
           - Generate a short title based on the first user's message
           - The title should be less than 30 characters long
@@ -117,7 +108,7 @@ export default defineEventHandler(async (event) => {
   const stream = createUIMessageStream({
     execute: async ({ writer }) => {
       const result = streamText({
-        model: groq('llama-3.3-70b-versatile'),
+        model: getModel(),
         system: systemPrompt,
         messages: await convertToModelMessages(messages),
         experimental_transform: smoothStream({ chunking: 'word' })

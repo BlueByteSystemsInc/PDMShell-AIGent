@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // No title set — falls through to titleTemplate default: "PDMShell Assistant"
 
-const { quota, fetchQuota } = useQuota()
+const { quota, provider, modelDisplayName, fetchQuota } = useQuota()
 
 onMounted(() => {
   fetchQuota()
@@ -96,11 +96,11 @@ const quickChats = [
         >
           <template #footer>
             <div class="flex items-center gap-1.5">
-              <span class="inline-flex items-center gap-1 text-xs text-muted">
+              <span v-if="modelDisplayName" class="inline-flex items-center gap-1 text-xs text-muted">
                 <UIcon name="i-lucide-cpu" class="size-3.5" />
-                <span>Llama 3.3 70B</span>
+                <span>{{ modelDisplayName }}</span>
               </span>
-              <span class="text-muted/50">·</span>
+              <span v-if="modelDisplayName" class="text-muted/50">·</span>
               <UTooltip text="PDMShell documentation is automatically retrieved for each query">
                 <span class="inline-flex items-center gap-1 text-xs text-muted hover:text-highlighted cursor-default transition-colors">
                   <UIcon name="i-lucide-book-open" class="size-3.5" />
@@ -109,7 +109,7 @@ const quickChats = [
               </UTooltip>
               <template v-if="quota">
                 <span class="text-muted/50">&middot;</span>
-                <QuotaPanel :quota="quota" />
+                <QuotaPanel :quota="quota" :provider="provider" />
               </template>
             </div>
 
