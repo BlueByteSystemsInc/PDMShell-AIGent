@@ -93,6 +93,7 @@ function collectBody(firstLine: string | undefined, rest: string | undefined, st
 const route = useRoute()
 const toast = useToast()
 const clipboard = useClipboard()
+const { quota, fetchQuota, updateFromStreamData } = useQuota()
 
 const { data, refresh: refreshChat } = await useFetch(`/api/chats/${route.params.id}`, {
   key: `chat-${route.params.id}`
@@ -116,6 +117,9 @@ const chat = new Chat({
     if (dataPart.type === 'data-chat-title') {
       refreshNuxtData('chats')
       refreshChat()
+    }
+    if (dataPart.type === 'data-quota') {
+      updateFromStreamData(dataPart.data)
     }
   },
   onError(error) {
@@ -152,6 +156,7 @@ function copy(e: MouseEvent, message: UIMessage) {
 }
 
 onMounted(() => {
+  fetchQuota()
   if (data.value?.messages.length === 1) {
     chat.regenerate()
   }
@@ -239,6 +244,10 @@ onMounted(() => {
                   <span>RAG</span>
                 </span>
               </UTooltip>
+              <template v-if="quota">
+                <span class="text-muted/50">&middot;</span>
+                <QuotaPanel :quota="quota" />
+              </template>
               <template v-if="chat.status === 'streaming'">
                 <span class="text-dimmed/40">·</span>
                 <span class="inline-flex items-center gap-1 text-xs text-primary">

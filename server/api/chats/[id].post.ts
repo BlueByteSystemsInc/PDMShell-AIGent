@@ -33,6 +33,12 @@ function getMessageText(message: UIMessage): string {
 export default defineEventHandler(async (event) => {
   const sessionId = getSessionId(event)
 
+  // Pre-flight rate limit check
+  const quota = checkQuota()
+  if (!quota.allowed) {
+    throw createError({ statusCode: 429, statusMessage: quota.reason })
+  }
+
   const { id } = await getValidatedRouterParams(event, z.object({
     id: z.string()
   }).parse)
@@ -57,7 +63,7 @@ export default defineEventHandler(async (event) => {
   // Generate title from first message (non-critical — wrapped in try-catch)
   if (!chat.title) {
     try {
-      const { text: title } = await generateText({
+      const { text: title, usage: titleUsage, response: titleResponse } = await generateText({
         model: groq('llama-3.3-70b-versatile'),
         system: `You are a title generator for a chat:
           - Generate a short title based on the first user's message
@@ -67,6 +73,11 @@ export default defineEventHandler(async (event) => {
           - Do not use markdown, just plain text`,
         prompt: JSON.stringify(messages[0])
       })
+
+      recordRequest(titleUsage.totalTokens)
+      if (titleResponse.headers) {
+        reconcileFromHeaders(titleResponse.headers)
+      }
 
       await db.update(schema.chats).set({ title, updatedAt: new Date() }).where(eq(schema.chats.id, id as string))
     } catch (error) {
@@ -120,7 +131,26 @@ export default defineEventHandler(async (event) => {
         })
       }
 
-      writer.merge(result.toUIMessageStream())
+      await writer.merge(result.toUIMessageStream())
+
+      // Track usage after stream completes
+      try {
+        const usage = await result.usage
+        recordRequest(usage.totalTokens)
+
+        const response = await result.response
+        if (response.headers) {
+          reconcileFromHeaders(response.headers)
+        }
+      } catch {
+        // Usage tracking is non-critical
+      }
+
+      // Emit quota state to client
+      writer.write({
+        type: 'data-quota',
+        data: getQuotaState()
+      })
     },
     onFinish: async ({ messages }) => {
       await db.insert(schema.messages).values(messages.map(message => ({

@@ -1,6 +1,12 @@
 <script setup lang="ts">
 // No title set — falls through to titleTemplate default: "PDMShell Assistant"
 
+const { quota, fetchQuota } = useQuota()
+
+onMounted(() => {
+  fetchQuota()
+})
+
 const input = ref('')
 const loading = ref(false)
 const loadingPrompt = ref<string | null>(null)
@@ -101,6 +107,10 @@ const quickChats = [
                   <span>RAG</span>
                 </span>
               </UTooltip>
+              <template v-if="quota">
+                <span class="text-muted/50">&middot;</span>
+                <QuotaPanel :quota="quota" />
+              </template>
             </div>
 
             <UChatPromptSubmit
