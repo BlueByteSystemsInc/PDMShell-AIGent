@@ -84,6 +84,59 @@
   min-height: 1.5em;
 }
 
+/* Thinking indicator */
+.thinking-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+
+.thinking-dots {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.thinking-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--color-pdmshell-400);
+  animation: thinking-pulse 1.4s ease-in-out infinite;
+}
+.thinking-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.thinking-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes thinking-pulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.thinking-label {
+  font-size: 0.8125rem;
+  color: var(--color-pdmshell-400);
+  animation: thinking-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes thinking-shimmer {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .chat-message-enter {
@@ -97,5 +150,13 @@
   ::view-transition-old(chat-prompt),
   ::view-transition-new(chat-prompt) {
     animation: none;
+  }
+  .thinking-dot {
+    animation: none;
+    opacity: 0.6;
+  }
+  .thinking-label {
+    animation: none;
+    opacity: 0.8;
   }
 }

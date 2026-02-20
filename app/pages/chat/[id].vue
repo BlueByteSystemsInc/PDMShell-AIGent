@@ -47,12 +47,18 @@ function mdcTag(type: string): string {
   return TYPE_TO_MDC[type] || 'callout{color="neutral"}'
 }
 
-// Memoization cache for callout transforms — same input always yields same output
+// Memoization cache for callout transforms with LRU eviction (cap at 100 entries)
+const CALLOUT_CACHE_MAX = 100
 const calloutCache = new Map<string, string>()
 
 function transformCallouts(md: string): string {
   const cached = calloutCache.get(md)
-  if (cached !== undefined) return cached
+  if (cached !== undefined) {
+    // Move to end for LRU ordering
+    calloutCache.delete(md)
+    calloutCache.set(md, cached)
+    return cached
+  }
 
   let result = md.replace(/\r\n/g, '\n')
 
@@ -89,6 +95,11 @@ function transformCallouts(md: string): string {
     }
   )
 
+  // Evict oldest entry if cache is full
+  if (calloutCache.size >= CALLOUT_CACHE_MAX) {
+    const oldest = calloutCache.keys().next().value!
+    calloutCache.delete(oldest)
+  }
   calloutCache.set(md, result)
   return result
 }
@@ -170,6 +181,12 @@ function copy(_e: MouseEvent, message: UIMessage) {
   resetCopied()
 }
 
+function isStreaming(message: UIMessage): boolean {
+  return message.role === 'assistant'
+    && (chat.status === 'streaming' || chat.status === 'submitted')
+    && message === chat.messages[chat.messages.length - 1]
+}
+
 onMounted(() => {
   if (data.value?.messages.length === 1) {
     chat.regenerate()
@@ -206,10 +223,21 @@ onMounted(() => {
             </UTooltip>
           </template>
 
+          <template #indicator>
+            <div class="thinking-indicator">
+              <span class="thinking-dots">
+                <span class="thinking-dot" />
+                <span class="thinking-dot" />
+                <span class="thinking-dot" />
+              </span>
+              <span class="thinking-label">Analyzing docs...</span>
+            </div>
+          </template>
+
           <template #content="{ message }">
             <div
               class="chat-message-enter"
-              :class="{ 'streaming-content': message.role === 'assistant' && chat.status === 'streaming' && message === chat.messages[chat.messages.length - 1] }"
+              :class="{ 'streaming-content': isStreaming(message) }"
             >
               <template v-for="(part, index) in message.parts" :key="`${message.id}-${index}`">
                 <Reasoning
@@ -220,7 +248,7 @@ onMounted(() => {
                 <!-- Only render markdown for assistant messages to prevent XSS from user input -->
                 <MDCCached
                   v-else-if="part.type === 'text' && message.role === 'assistant'"
-                  :value="transformCallouts(part.text)"
+                  :value="isStreaming(message) ? part.text : transformCallouts(part.text)"
                   :cache-key="`${message.id}-${index}`"
                   :components="components"
                   :parser-options="{ highlight: false }"
@@ -262,11 +290,11 @@ onMounted(() => {
                 <span class="text-muted/50">&middot;</span>
                 <QuotaPanel :quota="quota" :provider="provider" />
               </template>
-              <template v-if="chat.status === 'streaming'">
+              <template v-if="chat.status === 'submitted' || chat.status === 'streaming'">
                 <span class="text-dimmed/40">·</span>
                 <span class="inline-flex items-center gap-1 text-xs text-primary">
                   <UIcon name="i-lucide-loader" class="size-3.5 animate-spin" />
-                  <span>Generating...</span>
+                  <span>{{ chat.status === 'submitted' ? 'Thinking...' : 'Generating...' }}</span>
                 </span>
               </template>
             </div>

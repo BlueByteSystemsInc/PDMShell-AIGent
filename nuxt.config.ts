@@ -22,7 +22,14 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/api/config': { cache: { maxAge: 600 } }
+    '/api/config': { cache: { maxAge: 600 } },
+    '/api/chats/**': {
+      headers: {
+        'X-Accel-Buffering': 'no',
+        'Cache-Control': 'no-cache, no-transform',
+        'Content-Encoding': 'none'
+      }
+    }
   },
 
   experimental: {
