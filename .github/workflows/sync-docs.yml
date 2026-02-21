@@ -1,0 +1,39 @@
+name: Sync PDMShell Docs
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [docs-updated]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm sync-docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and push if changed
+        run: |
+          git diff --quiet server/utils/pdmshell-docs.ts && exit 0
+          git config user.name "gns-x"
+          git config user.email "gns-x@users.noreply.github.com"
+          git add server/utils/pdmshell-docs.ts
+          git commit -m "docs: sync pdmshell-docs from upstream"
+          git push
