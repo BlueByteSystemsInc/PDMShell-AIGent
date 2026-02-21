@@ -109,12 +109,11 @@ async function deleteChat(id: string) {
   const backup = chats.value
   chats.value = chats.value?.filter(c => c.id !== id) ?? undefined
 
-  if (route.params.id === id) {
-    navigateTo('/')
-  }
-
   try {
     await $fetch(`/api/chats/${id}`, { method: 'DELETE' })
+    if (route.params.id === id) {
+      navigateTo('/')
+    }
     toast.add({
       title: 'Chat deleted',
       description: 'Your chat has been deleted',

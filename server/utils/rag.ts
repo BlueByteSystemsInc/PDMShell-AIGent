@@ -163,9 +163,10 @@ function expandWithSynonyms(queryTokens: string[], rawQuery: string): string[] {
   const expanded = new Set<string>(queryTokens)
   const lowerQuery = rawQuery.toLowerCase()
 
-  // Check multi-word synonyms against the full query
+  // Check multi-word synonyms against the full query using word boundaries
   for (const [phrase, synonyms] of Object.entries(SYNONYMS)) {
-    if (lowerQuery.includes(phrase)) {
+    const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    if (new RegExp(`\\b${escaped}\\b`).test(lowerQuery)) {
       for (const syn of synonyms) {
         for (const token of tokenize(syn)) {
           expanded.add(token)

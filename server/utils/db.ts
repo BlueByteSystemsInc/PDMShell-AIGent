@@ -12,15 +12,21 @@ function useDb() {
     if (!url) {
       throw new Error('DATABASE_URL environment variable is required.')
     }
-    const client = postgres(url, { prepare: false })
+    const client = postgres(url, {
+      prepare: false,
+      max: 20,
+      idle_timeout: 30,
+      max_lifetime: 60 * 30
+    })
     _db = drizzle(client, { schema })
   }
   return _db
 }
 
-export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
-  get(_, prop) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (useDb() as any)[prop]
+type DbInstance = ReturnType<typeof drizzle<typeof schema>>
+
+export const db = new Proxy({} as DbInstance, {
+  get(_, prop: string | symbol) {
+    return (useDb() as Record<string | symbol, unknown>)[prop]
   }
 })

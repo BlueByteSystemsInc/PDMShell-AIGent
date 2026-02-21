@@ -326,27 +326,11 @@ async function fetchInBatches(
 // File generation
 // ---------------------------------------------------------------------------
 
-function escapeTemplateString(str: string): string {
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/`/g, '\\`')
-    .replace(/\$\{/g, '\\${')
-}
-
 function generateFileContent(docs: DocChunk[]): string {
   const sorted = [...docs].sort((a, b) => a.id.localeCompare(b.id))
+  const json = JSON.stringify(sorted, null, 2)
 
-  const entries = sorted.map(doc => {
-    const keywords = doc.keywords.map(k => `'${k.replace(/'/g, "\\'")}'`).join(', ')
-    return `  {
-    id: '${doc.id}',
-    title: '${doc.title.replace(/'/g, "\\'")}',
-    content: \`${escapeTemplateString(doc.content)}\`,
-    keywords: [${keywords}],
-    category: '${doc.category}'
-  }`
-  })
-
+  // Indent the JSON array contents by 0 levels (it's already the top-level export value)
   return `export interface DocChunk {
   id: string
   title: string
@@ -355,9 +339,7 @@ function generateFileContent(docs: DocChunk[]): string {
   category: string
 }
 
-export const pdmshellDocs: DocChunk[] = [
-${entries.join(',\n')}
-]
+export const pdmshellDocs: DocChunk[] = ${json}
 `
 }
 

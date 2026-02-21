@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
 
   return await db.query.chats.findMany({
     where: () => eq(schema.chats.sessionId, sessionId),
-    orderBy: () => desc(schema.chats.updatedAt)
+    orderBy: () => desc(schema.chats.updatedAt),
+    limit: 200
   })
 })

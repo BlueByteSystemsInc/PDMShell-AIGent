@@ -11,6 +11,10 @@ export const useHighlighter = async () => {
     promise = createHighlighter({
       langs: ['bash', 'powershell', 'json', 'yaml', 'ts', 'js'],
       themes: ['material-theme-palenight', 'material-theme-lighter']
+    }).catch((err) => {
+      // Reset so next call retries instead of hanging forever
+      promise = null
+      throw err
     })
   }
   if (!highlighter) {
