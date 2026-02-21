@@ -42,6 +42,12 @@ onNuxtReady(async () => {
   )
 })
 
+// Close sidebar on mobile when navigating to a chat
+const router = useRouter()
+router.afterEach(() => {
+  open.value = false
+})
+
 const { groups } = useChats(chats)
 
 const items = computed(() => groups.value?.flatMap((group) => {
@@ -57,24 +63,32 @@ const items = computed(() => groups.value?.flatMap((group) => {
 
 const hasChats = computed(() => items.value && items.value.length > 0)
 
-// Mock user for auth placeholder
-const mockUser = {
-  name: 'Guest User',
-  initials: 'GU'
+const user = {
+  name: 'User',
+  initials: 'U'
 }
 
 const userMenuItems = computed<DropdownMenuItem[][]>(() => ([[{
   type: 'label',
-  label: mockUser.name,
+  label: user.name,
   icon: 'i-lucide-user'
 }], [{
   label: 'Appearance',
   icon: colorMode.value === 'dark' ? 'i-lucide-moon' : 'i-lucide-sun',
   children: [{
+    label: 'System',
+    icon: 'i-lucide-monitor',
+    type: 'checkbox',
+    checked: colorMode.preference === 'system',
+    onSelect(e: Event) {
+      e.preventDefault()
+      colorMode.preference = 'system'
+    }
+  }, {
     label: 'Light',
     icon: 'i-lucide-sun',
     type: 'checkbox',
-    checked: colorMode.value === 'light',
+    checked: colorMode.preference === 'light',
     onSelect(e: Event) {
       e.preventDefault()
       colorMode.preference = 'light'
@@ -83,19 +97,12 @@ const userMenuItems = computed<DropdownMenuItem[][]>(() => ([[{
     label: 'Dark',
     icon: 'i-lucide-moon',
     type: 'checkbox',
-    checked: colorMode.value === 'dark',
+    checked: colorMode.preference === 'dark',
     onSelect(e: Event) {
       e.preventDefault()
       colorMode.preference = 'dark'
     }
   }]
-}], [{
-  label: 'Sign in (coming soon)',
-  icon: 'i-lucide-log-in',
-  disabled: true,
-  onSelect() {
-    // Placeholder: will wire to auth when ready
-  }
 }]]))
 
 async function deleteChat(id: string) {
@@ -152,7 +159,7 @@ defineShortcuts({
     >
       <template #header="{ collapsed }">
         <NuxtLink to="/" class="flex items-center gap-1.5">
-          <img src="/fav.png" alt="PDMShell" class="h-7 w-auto shrink-0">
+          <Logo class="h-7 w-7 shrink-0" />
           <span v-if="!collapsed" class="text-lg font-bold text-highlighted">PDMShell</span>
         </NuxtLink>
 
@@ -181,9 +188,11 @@ defineShortcuts({
 
         <template v-if="!collapsed">
           <!-- Skeleton while chats are loading -->
-          <div v-if="chatsStatus === 'pending'" class="flex flex-col gap-2 px-2 py-3">
-            <USkeleton class="h-3 w-16 rounded" />
-            <USkeleton v-for="i in 5" :key="i" class="h-8 w-full rounded" />
+          <div v-if="chatsStatus === 'pending'" class="flex flex-col gap-3 px-2 py-3">
+            <USkeleton class="h-3 w-12 rounded" />
+            <USkeleton v-for="i in 3" :key="`a-${i}`" class="h-8 w-full rounded" />
+            <USkeleton class="h-3 w-16 rounded mt-1" />
+            <USkeleton v-for="i in 2" :key="`b-${i}`" class="h-8 w-full rounded" />
           </div>
 
           <UNavigationMenu
@@ -194,7 +203,7 @@ defineShortcuts({
             :ui="{ link: 'overflow-hidden' }"
           >
             <template #chat-trailing="{ item }">
-              <div class="flex -mr-1.25 translate-x-full group-hover:translate-x-0 transition-transform">
+              <div class="flex -mr-1.25 translate-x-full group-hover:translate-x-0 focus-within:translate-x-0 transition-transform touch:translate-x-0">
                 <UButton
                   icon="i-lucide-x"
                   color="neutral"
@@ -202,7 +211,6 @@ defineShortcuts({
                   size="xs"
                   aria-label="Delete chat"
                   class="text-muted hover:text-primary hover:bg-accented/50 focus-visible:bg-accented/50 p-0.5"
-                  tabindex="-1"
                   @click.stop.prevent="deleteChat((item as { id: string }).id)"
                 />
               </div>
@@ -228,7 +236,7 @@ defineShortcuts({
           :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }"
         >
           <UButton
-            :label="collapsed ? undefined : mockUser.name"
+            :label="collapsed ? undefined : user.name"
             :trailing-icon="collapsed ? undefined : 'i-lucide-chevrons-up-down'"
             color="neutral"
             variant="ghost"
@@ -239,7 +247,7 @@ defineShortcuts({
           >
             <template #leading>
               <span class="inline-flex items-center justify-center size-6 rounded-full bg-primary/15 text-primary text-xs font-semibold shrink-0">
-                {{ collapsed ? mockUser.initials[0] : mockUser.initials }}
+                {{ collapsed ? user.initials[0] : user.initials }}
               </span>
             </template>
           </UButton>

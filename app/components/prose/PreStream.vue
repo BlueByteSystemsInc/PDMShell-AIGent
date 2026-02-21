@@ -44,14 +44,19 @@ function copyCode() {
 
 <template>
   <div class="group/code relative">
-    <button
-      class="absolute right-2 top-2 z-10 flex items-center gap-1 rounded-md px-1.5 py-1 text-xs opacity-0 transition-opacity group-hover/code:opacity-100 bg-default/80 backdrop-blur text-muted hover:text-highlighted border border-default/50"
-      :aria-label="copied ? 'Copied!' : 'Copy code'"
-      @click="copyCode"
-    >
-      <UIcon :name="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'" class="size-3.5" />
-      <span>{{ copied ? 'Copied!' : 'Copy' }}</span>
-    </button>
+    <div class="absolute right-2 top-2 z-10 flex items-center gap-1.5 opacity-0 transition-opacity group-hover/code:opacity-100 focus-within:opacity-100">
+      <span v-if="lang" class="rounded-md px-1.5 py-0.5 text-xs bg-default/80 backdrop-blur text-dimmed border border-default/50 select-none">
+        {{ lang }}
+      </span>
+      <button
+        class="flex items-center gap-1 rounded-md px-1.5 py-1 text-xs bg-default/80 backdrop-blur text-muted hover:text-highlighted border border-default/50"
+        :aria-label="copied ? 'Copied!' : 'Copy code'"
+        @click="copyCode"
+      >
+        <UIcon :name="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'" class="size-3.5" />
+        <span>{{ copied ? 'Copied!' : 'Copy' }}</span>
+      </button>
+    </div>
 
     <ProsePre v-bind="props" :ui="{ copy: 'hidden' }">
       <ShikiCachedRenderer

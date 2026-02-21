@@ -155,7 +155,7 @@ const chat = new Chat({
       description: message,
       icon: 'i-lucide-alert-circle',
       color: 'error',
-      duration: 0
+      duration: 8000
     })
   }
 })
@@ -251,7 +251,7 @@ onMounted(() => {
           </template>
 
           <template #indicator>
-            <div class="thinking-indicator">
+            <div class="thinking-indicator" aria-live="polite">
               <div class="thinking-orbit">
                 <div class="thinking-ring" />
                 <div class="thinking-particle" />
@@ -285,7 +285,7 @@ onMounted(() => {
                   class="*:first:mt-0 *:last:mb-0"
                 />
                 <!-- User messages are rendered as plain text (safely escaped by Vue) -->
-                <p v-else-if="part.type === 'text' && message.role === 'user'" class="whitespace-pre-wrap">
+                <p v-else-if="part.type === 'text' && message.role === 'user'" class="whitespace-pre-wrap break-words">
                   {{ part.text }}
                 </p>
               </template>

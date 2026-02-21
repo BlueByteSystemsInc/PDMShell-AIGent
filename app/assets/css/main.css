@@ -141,8 +141,11 @@
 
 .thinking-label {
   font-size: 0.8125rem;
-  color: var(--color-pdmshell-400);
+  color: var(--color-pdmshell-700);
   white-space: nowrap;
+}
+.dark .thinking-label {
+  color: var(--color-pdmshell-400);
 }
 
 /* Vue transition for cycling messages */

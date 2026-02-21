@@ -3,6 +3,7 @@
 
 const { quota, provider, modelDisplayName } = useQuota()
 
+const toast = useToast()
 const input = ref('')
 const loading = ref(false)
 const loadingPrompt = ref<string | null>(null)
@@ -12,24 +13,35 @@ async function createChat(prompt: string) {
   loading.value = true
   loadingPrompt.value = prompt
 
-  const parts: Array<{ type: string, text?: string, mediaType?: string, url?: string }> = [{ type: 'text', text: prompt }]
+  try {
+    const parts: Array<{ type: string, text?: string, mediaType?: string, url?: string }> = [{ type: 'text', text: prompt }]
 
-  const chat = await $fetch('/api/chats', {
-    method: 'POST',
-    body: {
-      message: {
-        role: 'user',
-        parts
+    const chat = await $fetch('/api/chats', {
+      method: 'POST',
+      body: {
+        message: {
+          role: 'user',
+          parts
+        }
       }
-    }
-  })
+    })
 
-  refreshNuxtData('chats')
+    refreshNuxtData('chats')
 
-  // Defer navigation to next frame so the view transition starts smoothly
-  requestAnimationFrame(() => {
-    navigateTo(`/chat/${chat?.id}`)
-  })
+    // Defer navigation to next frame so the view transition starts smoothly
+    requestAnimationFrame(() => {
+      navigateTo(`/chat/${chat?.id}`)
+    })
+  } catch {
+    toast.add({
+      title: 'Failed to create chat',
+      icon: 'i-lucide-alert-circle',
+      color: 'error'
+    })
+  } finally {
+    loading.value = false
+    loadingPrompt.value = null
+  }
 }
 
 async function onSubmit() {
@@ -76,6 +88,9 @@ const quickChats = [
           <h1 class="text-3xl sm:text-4xl text-highlighted font-bold">
             PDMShell Assistant
           </h1>
+          <p class="text-base sm:text-lg text-muted mt-1">
+            Convert natural language into PDMShell scripts for SOLIDWORKS PDM automation.
+          </p>
         </div>
 
         <UChatPrompt
@@ -115,7 +130,7 @@ const quickChats = [
           </template>
         </UChatPrompt>
 
-        <div class="flex flex-wrap gap-2">
+        <div class="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible sm:pb-0">
           <UButton
             v-for="quickChat in quickChats"
             :key="quickChat.label"
@@ -126,7 +141,7 @@ const quickChats = [
             size="sm"
             color="neutral"
             variant="outline"
-            class="rounded-full"
+            class="rounded-full shrink-0"
             @click="createChat(quickChat.label)"
           />
         </div>

@@ -12,7 +12,7 @@ withDefaults(defineProps<{
     :ui="{ left: 'pointer-events-auto', right: 'pointer-events-auto' }"
   >
     <template #title>
-      <span class="sr-only">{{ title }}</span>
+      <span class="text-sm font-medium text-muted truncate">{{ title }}</span>
     </template>
 
     <template #right>
