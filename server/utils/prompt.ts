@@ -1,4 +1,16 @@
 /**
+ * Sanitize RAG-retrieved doc content to prevent prompt injection.
+ * Strips patterns that could be interpreted as new system instructions.
+ */
+function sanitizeDocContent(doc: string): string {
+  return doc
+    // Strip anything that looks like a system/instruction override
+    .replace(/^(system|instruction|prompt)\s*:/gim, '[doc] $1:')
+    // Neutralize markdown heading injection that could mimic prompt sections
+    .replace(/^#{1,2}\s*(Core Rules|Response Guidelines|System)/gim, '### [doc] $1')
+}
+
+/**
  * Builds a comprehensive system prompt for the PDMShell AI assistant,
  * incorporating relevant documentation context retrieved via RAG.
  *
@@ -8,7 +20,7 @@
 export function buildPDMShellSystemPrompt(relevantDocs: string[]): string {
   const docsContext
     = relevantDocs.length > 0
-      ? relevantDocs.join('\n\n---\n\n')
+      ? relevantDocs.map(sanitizeDocContent).join('\n\n---\n\n')
       : 'No specific documentation was retrieved for this query. Rely on general PDMShell knowledge.'
 
   return `You are an expert PDMShell assistant specializing in SOLIDWORKS PDM Professional automation. Your role is to help users write, understand, and troubleshoot PDMShell scripts and commands.

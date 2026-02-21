@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   const sessionId = getSessionId(event)
 
   // Pre-flight rate limit check
-  const quota = checkQuota()
+  const quota = checkQuota(sessionId)
   if (!quota.allowed) {
     throw createError({ statusCode: 429, statusMessage: quota.reason })
   }
@@ -34,9 +34,15 @@ export default defineEventHandler(async (event) => {
     id: z.string()
   }).parse)
 
+  const messageSchema = z.object({
+    id: z.string(),
+    role: z.enum(['user', 'assistant', 'system']),
+    parts: z.array(z.record(z.unknown())).default([])
+  }).passthrough()
+
   const { messages } = await readValidatedBody(event, z.object({
-    messages: z.array(z.custom<UIMessage>())
-  }).parse)
+    messages: z.array(messageSchema)
+  }).parse) as { messages: UIMessage[] }
 
   const chat = await db.query.chats.findFirst({
     where: () => and(
@@ -64,7 +70,7 @@ export default defineEventHandler(async (event) => {
       prompt: JSON.stringify(messages[0])
     }).then(async (result) => {
       const { text: title, usage: titleUsage, response: titleResponse } = result
-      recordRequest(titleUsage.totalTokens)
+      recordRequest(sessionId, titleUsage.totalTokens)
       if (titleResponse.headers) {
         reconcileFromHeaders(titleResponse.headers)
       }
@@ -79,11 +85,11 @@ export default defineEventHandler(async (event) => {
     db.update(schema.chats).set({ updatedAt: new Date() }).where(eq(schema.chats.id, id as string))
   ]
   const lastMessage = messages[messages.length - 1]
-  if (lastMessage?.role === 'user' && messages.length > 1) {
+  if (lastMessage?.role === 'user') {
     dbOps.push(db.insert(schema.messages).values({
       chatId: id as string,
       role: 'user',
-      parts: lastMessage.parts
+      parts: lastMessage.parts ?? []
     }))
   }
   await Promise.all(dbOps)
@@ -126,7 +132,7 @@ export default defineEventHandler(async (event) => {
       // Track usage after stream completes
       try {
         const usage = await result.usage
-        recordRequest(usage.totalTokens)
+        recordRequest(sessionId, usage.totalTokens)
 
         const response = await result.response
         if (response.headers) {
@@ -139,15 +145,21 @@ export default defineEventHandler(async (event) => {
       // Emit quota state to client
       writer.write({
         type: 'data-quota',
-        data: getQuotaState()
+        data: getQuotaState(sessionId)
       })
     },
     onFinish: async ({ messages }) => {
-      await db.insert(schema.messages).values(messages.map(message => ({
-        chatId: chat.id,
-        role: message.role as 'user' | 'assistant',
-        parts: message.parts
-      })))
+      const validRoles = new Set(['user', 'assistant'])
+      const toInsert = messages
+        .filter(m => validRoles.has(m.role))
+        .map(m => ({
+          chatId: chat.id,
+          role: m.role as 'user' | 'assistant',
+          parts: m.parts ?? []
+        }))
+      if (toInsert.length) {
+        await db.insert(schema.messages).values(toInsert)
+      }
     }
   })
 

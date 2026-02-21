@@ -6,7 +6,6 @@ const { quota, provider, modelDisplayName } = useQuota()
 const input = ref('')
 const loading = ref(false)
 const loadingPrompt = ref<string | null>(null)
-const chatId = crypto.randomUUID()
 
 async function createChat(prompt: string) {
   input.value = prompt
@@ -18,7 +17,6 @@ async function createChat(prompt: string) {
   const chat = await $fetch('/api/chats', {
     method: 'POST',
     body: {
-      id: chatId,
       message: {
         role: 'user',
         parts
