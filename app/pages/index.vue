@@ -45,6 +45,7 @@ async function createChat(prompt: string) {
 }
 
 async function onSubmit() {
+  if (!input.value.trim()) return
   await createChat(input.value)
 }
 

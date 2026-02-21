@@ -1,16 +1,26 @@
 import { db, schema } from '../utils/db'
 import { z } from 'zod'
 
-const messageSchema = z.object({
-  role: z.literal('user'),
-  parts: z.array(z.record(z.unknown())).min(1)
-}).passthrough()
+const bodySchema = z.object({
+  message: z.object({
+    role: z.literal('user'),
+    parts: z.array(z.record(z.string(), z.unknown())).min(1)
+  }).passthrough()
+})
 
 export default defineEventHandler(async (event) => {
   const sessionId = getSessionId(event)
-  const { message } = await readValidatedBody(event, z.object({
-    message: messageSchema
-  }).parse)
+
+  const body = await readBody(event)
+  const parsed = bodySchema.safeParse(body)
+  if (!parsed.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid request body',
+      data: parsed.error.flatten()
+    })
+  }
+  const { message } = parsed.data
 
   const [chat] = await db.insert(schema.chats).values({
     title: '',

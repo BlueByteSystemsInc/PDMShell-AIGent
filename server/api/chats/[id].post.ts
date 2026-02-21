@@ -37,12 +37,21 @@ export default defineEventHandler(async (event) => {
   const messageSchema = z.object({
     id: z.string(),
     role: z.enum(['user', 'assistant', 'system']),
-    parts: z.array(z.record(z.unknown())).default([])
+    parts: z.array(z.record(z.string(), z.unknown())).default([])
   }).passthrough()
 
-  const { messages } = await readValidatedBody(event, z.object({
+  const body = await readBody(event)
+  const parsed = z.object({
     messages: z.array(messageSchema)
-  }).parse) as { messages: UIMessage[] }
+  }).safeParse(body)
+  if (!parsed.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid request body',
+      data: parsed.error.flatten()
+    })
+  }
+  const { messages } = parsed.data as { messages: UIMessage[] }
 
   const chat = await db.query.chats.findFirst({
     where: () => and(
