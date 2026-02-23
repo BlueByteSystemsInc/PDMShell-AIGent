@@ -17,7 +17,7 @@ export default defineNuxtConfig({
       anchorLinks: false
     },
     highlight: {
-      shikiEngine: 'wasm'
+      shikiEngine: 'javascript'
     }
   },
 

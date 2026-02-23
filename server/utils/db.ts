@@ -27,6 +27,6 @@ type DbInstance = ReturnType<typeof drizzle<typeof schema>>
 
 export const db = new Proxy({} as DbInstance, {
   get(_, prop: string | symbol) {
-    return (useDb() as Record<string | symbol, unknown>)[prop]
+    return (useDb() as unknown as Record<string | symbol, unknown>)[prop]
   }
 })

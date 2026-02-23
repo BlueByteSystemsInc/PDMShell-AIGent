@@ -1,4 +1,5 @@
 import { isToday, isYesterday, subDays, subMonths } from 'date-fns'
+import { computed, type Ref } from '#imports'
 
 export interface UIChat {
   id: string

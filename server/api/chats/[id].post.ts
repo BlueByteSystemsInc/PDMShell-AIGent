@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
       data: parsed.error.flatten()
     })
   }
-  const { messages } = parsed.data as { messages: UIMessage[] }
+  const { messages } = parsed.data as unknown as { messages: UIMessage[] }
 
   const chat = await db.query.chats.findFirst({
     where: () => and(
