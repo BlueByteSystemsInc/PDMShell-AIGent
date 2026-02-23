@@ -66,9 +66,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Chat not found' })
   }
 
-  // Fire-and-forget title generation — don't block the stream
+  // Start title generation in parallel — awaited later before notifying client
+  let titlePromise: Promise<boolean> | null = null
   if (!chat.title) {
-    generateText({
+    titlePromise = generateText({
       model: getModel(),
       system: `You are a title generator for a chat:
           - Generate a short title based on the first user's message
@@ -84,8 +85,10 @@ export default defineEventHandler(async (event) => {
         reconcileFromHeaders(titleResponse.headers)
       }
       await db.update(schema.chats).set({ title, updatedAt: new Date() }).where(eq(schema.chats.id, id as string))
+      return true
     }).catch((error) => {
       console.error('[PDMShell] Title generation failed:', error)
+      return false
     })
   }
 
@@ -128,14 +131,6 @@ export default defineEventHandler(async (event) => {
         experimental_transform: smoothStream({ chunking: 'word' })
       })
 
-      if (!chat.title) {
-        writer.write({
-          type: 'data-chat-title',
-          data: { message: 'Generating title...' },
-          transient: true
-        })
-      }
-
       await writer.merge(result.toUIMessageStream())
 
       // Track usage after stream completes
@@ -149,6 +144,17 @@ export default defineEventHandler(async (event) => {
         }
       } catch {
         // Usage tracking is non-critical
+      }
+
+      // Wait for title generation to finish, then notify client so sidebar refreshes
+      if (titlePromise) {
+        const titleSaved = await titlePromise
+        if (titleSaved) {
+          writer.write({
+            type: 'data-chat-title',
+            data: { message: 'Title generated' }
+          })
+        }
       }
 
       // Emit quota state to client
