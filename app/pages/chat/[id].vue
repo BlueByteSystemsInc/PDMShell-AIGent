@@ -216,7 +216,7 @@ onUnmounted(() => {
 
 onMounted(() => {
   if (data.value?.messages.length === 1) {
-    chat.regenerate()
+    nextTick(() => chat.regenerate())
   }
 })
 </script>

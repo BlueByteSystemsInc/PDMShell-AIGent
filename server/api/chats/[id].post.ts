@@ -31,24 +31,24 @@ export default defineEventHandler(async (event) => {
   }
 
   const { id } = await getValidatedRouterParams(event, z.object({
-    id: z.string()
+    id: z.string().max(256)
   }).parse)
 
   const messageSchema = z.object({
-    id: z.string(),
+    id: z.string().max(256),
     role: z.enum(['user', 'assistant', 'system']),
-    parts: z.array(z.record(z.string(), z.unknown())).default([])
+    parts: z.array(z.record(z.string(), z.unknown())).default([]).pipe(z.array(z.record(z.string(), z.unknown())).max(50))
   }).passthrough()
 
   const body = await readBody(event)
   const parsed = z.object({
-    messages: z.array(messageSchema)
+    messages: z.array(messageSchema).max(200)
   }).safeParse(body)
   if (!parsed.success) {
+    if (import.meta.dev) console.warn('[PDMShell] Validation error:', parsed.error.flatten())
     throw createError({
       statusCode: 400,
-      statusMessage: 'Invalid request body',
-      data: parsed.error.flatten()
+      statusMessage: 'Invalid request body'
     })
   }
   const { messages } = parsed.data as unknown as { messages: UIMessage[] }
