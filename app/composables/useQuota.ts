@@ -26,6 +26,7 @@ export function useQuota() {
   const modelDisplayName = useState<string>('ai-model-name', () => '')
 
   async function fetchQuota() {
+    if (quota.value !== null) return
     try {
       const data = await $fetch<AIConfigResponse>('/api/config')
       quota.value = data.quota

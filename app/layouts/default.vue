@@ -9,12 +9,18 @@ const colorMode = useColorMode()
 
 const open = ref(false)
 
-const deleteModal = overlay.create(LazyModalConfirm, {
-  props: {
-    title: 'Delete chat',
-    description: 'Are you sure you want to delete this chat? This cannot be undone.'
+let deleteModal: ReturnType<typeof overlay.create> | null = null
+function getDeleteModal() {
+  if (!deleteModal) {
+    deleteModal = overlay.create(LazyModalConfirm, {
+      props: {
+        title: 'Delete chat',
+        description: 'Are you sure you want to delete this chat? This cannot be undone.'
+      }
+    })
   }
-})
+  return deleteModal
+}
 
 // Lazy fetch — don't block layout render while chats load
 const { data: chats, status: chatsStatus, refresh: _refreshChats } = useLazyFetch('/api/chats', {
@@ -33,8 +39,11 @@ onMounted(() => {
   fetchQuota()
 })
 
-// Preload first 5 chats for faster navigation (reduced from 10)
+// Preload first 5 chats for faster navigation (runs once)
+let preloaded = false
 onNuxtReady(async () => {
+  if (preloaded) return
+  preloaded = true
   const first5 = (chats.value || []).slice(0, 5)
   if (first5.length === 0) return
   await Promise.allSettled(
@@ -106,7 +115,7 @@ const userMenuItems = computed<DropdownMenuItem[][]>(() => ([[{
 }]]))
 
 async function deleteChat(id: string) {
-  const instance = deleteModal.open()
+  const instance = getDeleteModal().open()
   const result = await instance.result
   if (!result) {
     return

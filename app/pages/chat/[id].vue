@@ -196,22 +196,15 @@ const thinkingMessages = [
   'Assembling the response'
 ]
 const thinkingIndex = ref(0)
-let thinkingInterval: ReturnType<typeof setInterval> | null = null
 
-watch(() => chat.status, (status) => {
-  if (status === 'submitted') {
+watchEffect((onCleanup) => {
+  if (chat.status === 'submitted') {
     thinkingIndex.value = 0
-    thinkingInterval = setInterval(() => {
+    const interval = setInterval(() => {
       thinkingIndex.value = (thinkingIndex.value + 1) % thinkingMessages.length
     }, 2400)
-  } else if (thinkingInterval) {
-    clearInterval(thinkingInterval)
-    thinkingInterval = null
+    onCleanup(() => clearInterval(interval))
   }
-})
-
-onUnmounted(() => {
-  if (thinkingInterval) clearInterval(thinkingInterval)
 })
 
 onMounted(() => {
@@ -278,7 +271,7 @@ onMounted(() => {
                 <!-- Only render markdown for assistant messages to prevent XSS from user input -->
                 <MDCCached
                   v-else-if="part.type === 'text' && message.role === 'assistant'"
-                  :value="transformCallouts(part.text)"
+                  :value="isStreaming(message) ? part.text : transformCallouts(part.text)"
                   :cache-key="`${message.id}-${index}`"
                   :components="components"
                   :parser-options="{ highlight: false }"

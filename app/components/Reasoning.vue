@@ -11,12 +11,11 @@ watch(open, (v) => {
   openModel.value = v
 })
 
+const STRIP_MD_RE = /\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|^#+\s+/gm
+
 const lines = computed(() => {
   return props.text
-    .replace(/\*\*(.+?)\*\*/g, '$1')
-    .replace(/\*(.+?)\*/g, '$1')
-    .replace(/`(.+?)`/g, '$1')
-    .replace(/^#+\s+/gm, '')
+    .replace(STRIP_MD_RE, (_, bold, italic, code) => bold || italic || code || '')
     .split('\n')
     .filter(Boolean)
 })

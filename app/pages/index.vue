@@ -28,10 +28,9 @@ async function createChat(prompt: string) {
 
     refreshNuxtData('chats')
 
-    // Defer navigation to next frame so the view transition starts smoothly
-    requestAnimationFrame(() => {
-      navigateTo(`/chat/${chat?.id}`)
-    })
+    // Defer navigation so the view transition starts smoothly
+    await nextTick()
+    navigateTo(`/chat/${chat?.id}`)
   } catch {
     toast.add({
       title: 'Failed to create chat',

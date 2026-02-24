@@ -1,7 +1,6 @@
 export default defineNuxtRouteMiddleware((to, from) => {
   if (import.meta.server) return
-
-  if (to.params.id && from.params.id) {
-    to.meta.viewTransition = false
-  }
+  // Only disable view transitions for chat-to-chat navigation
+  if (!to.params.id || !from.params.id) return
+  to.meta.viewTransition = false
 })

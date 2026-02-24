@@ -45,8 +45,8 @@ const metricValues = computed(() => {
 })
 
 const worstPct = computed(() => {
-  if (!metricValues.value.length) return 0
-  return Math.max(...metricValues.value.map(m => m.pct))
+  if (!props.quota) return 0
+  return Math.max(...metrics.map(m => pct(props.quota![m.key])))
 })
 
 const dotColor = computed(() => {

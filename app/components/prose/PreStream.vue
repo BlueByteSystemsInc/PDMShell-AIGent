@@ -3,8 +3,15 @@ import { ShikiCachedRenderer } from 'shiki-stream/vue'
 import { useClipboard, useTimeoutFn } from '@vueuse/core'
 
 const colorMode = useColorMode()
-const highlighter = await useHighlighter()
 const clipboard = useClipboard()
+
+// Non-blocking highlighter: render plain code instantly, upgrade to syntax highlighting when ready
+const highlighter = shallowRef<Awaited<ReturnType<typeof useHighlighter>> | null>(null)
+onMounted(() => {
+  useHighlighter().then((h) => {
+    highlighter.value = h
+  })
+})
 
 const props = defineProps<{
   code: string
@@ -60,12 +67,14 @@ function copyCode() {
 
     <ProsePre v-bind="props" :ui="{ copy: 'hidden' }">
       <ShikiCachedRenderer
+        v-if="highlighter"
         :key="key"
         :highlighter="highlighter"
         :code="trimmedCode"
         :lang="lang"
         :theme="colorMode.value === 'dark' ? 'material-theme-palenight' : 'material-theme-lighter'"
       />
+      <code v-else class="text-sm whitespace-pre">{{ trimmedCode }}</code>
     </ProsePre>
   </div>
 </template>
