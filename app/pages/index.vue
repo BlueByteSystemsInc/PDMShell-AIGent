@@ -98,10 +98,10 @@ const quickChats = [
           variant="subtle"
           placeholder="Describe your PDMShell task..."
           :maxrows="8"
-          :ui="{ base: 'px-1.5' }"
+          :ui="{ base: 'px-1.5', trailing: '!items-center' }"
           @submit="onSubmit"
         >
-          <template #footer>
+          <template #trailing>
             <UChatPromptSubmit
               :status="loading ? 'streaming' : 'ready'"
               color="neutral"

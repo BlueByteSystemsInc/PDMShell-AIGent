@@ -287,7 +287,7 @@ onMounted(() => {
           placeholder="Ask a follow-up or describe another task..."
           :maxrows="8"
           class="sticky bottom-0 [view-transition-name:chat-prompt] rounded-b-none z-10"
-          :ui="{ base: 'px-1.5' }"
+          :ui="{ base: 'px-1.5', trailing: '!items-center' }"
           @submit="handleSubmit"
         >
           <template #footer>
@@ -297,7 +297,9 @@ onMounted(() => {
                 <span>{{ chat.status === 'submitted' ? 'Thinking...' : 'Generating...' }}</span>
               </span>
             </div>
+          </template>
 
+          <template #trailing>
             <UChatPromptSubmit
               :status="chat.status"
               color="neutral"
