@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // No title set — falls through to titleTemplate default: "PDMShell Assistant"
 
-const { quota, provider, modelDisplayName } = useQuota()
+const { quota } = useQuota()
 
 const toast = useToast()
 const input = ref('')
@@ -104,23 +104,7 @@ const quickChats = [
           @submit="onSubmit"
         >
           <template #footer>
-            <div class="flex items-center gap-1.5">
-              <span v-if="modelDisplayName" class="inline-flex items-center gap-1 text-xs text-muted">
-                <UIcon name="i-lucide-cpu" class="size-3.5" />
-                <span>{{ modelDisplayName }}</span>
-              </span>
-              <span v-if="modelDisplayName" class="text-muted/50">·</span>
-              <UTooltip text="PDMShell documentation is automatically retrieved for each query">
-                <span class="inline-flex items-center gap-1 text-xs text-muted hover:text-highlighted cursor-default transition-colors">
-                  <UIcon name="i-lucide-book-open" class="size-3.5" />
-                  <span>RAG</span>
-                </span>
-              </UTooltip>
-              <template v-if="quota">
-                <span class="text-muted/50">&middot;</span>
-                <QuotaPanel :quota="quota" :provider="provider" />
-              </template>
-            </div>
+            <QuotaPanel :quota="quota" />
 
             <UChatPromptSubmit
               :status="loading ? 'streaming' : 'ready'"

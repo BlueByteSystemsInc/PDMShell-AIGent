@@ -3,7 +3,6 @@ import type { QuotaState } from '../composables/useQuota'
 
 const props = defineProps<{
   quota: QuotaState | null
-  provider?: string
 }>()
 
 interface MetricConfig {
@@ -81,20 +80,27 @@ const resetText = computed(() => {
   <UPopover v-if="quota" :ui="{ content: 'p-0' }">
     <button
       type="button"
-      class="inline-flex items-center gap-1 text-xs text-muted hover:text-highlighted cursor-pointer transition-colors"
+      class="inline-flex items-center gap-1.5 text-xs text-muted hover:text-highlighted cursor-pointer transition-colors group"
     >
-      <span
-        class="size-1.5 rounded-full shrink-0"
-        :class="[dotColor, shouldPulse ? 'motion-safe:animate-pulse' : '']"
-      />
-      <UIcon name="i-lucide-gauge" class="size-3.5" />
-      <span>Quota</span>
+      <span class="relative flex items-center">
+        <span
+          class="size-1.5 rounded-full shrink-0 absolute -left-2.5"
+          :class="[dotColor, shouldPulse ? 'motion-safe:animate-pulse' : '']"
+        />
+        <UProgress
+          :model-value="worstPct"
+          size="2xs"
+          :color="progressColor(worstPct)"
+          class="w-20"
+        />
+      </span>
+      <span class="tabular-nums">{{ worstPct }}%</span>
     </button>
 
     <template #content>
       <div class="w-72 p-3">
         <p class="text-xs font-medium text-highlighted mb-3">
-          {{ provider || 'API' }} Free Tier Usage
+          Usage
         </p>
 
         <div class="space-y-2.5">
