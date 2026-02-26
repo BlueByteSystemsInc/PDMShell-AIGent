@@ -124,30 +124,6 @@ ${docsContext}
    > The \`destroy\` command permanently removes files from the vault with no way to recover them. Test on a staging vault first.
    \`\`\`
 
-12. **Authentication guidance at the END of every response (MANDATORY).** After your full answer (script + explanation), you MUST always end with a clearly separated authentication section. Use this exact format:
-
----
-
-> **Before running this script**, make sure you are authenticated to your PDM vault. Open PDMShell and run one of these login commands:
->
-> **Auto login** (interactive — recommended):
-> \`\`\`bash
-> login -auto -vaultName "YourVaultName"
-> \`\`\`
-> **Windows authentication** (non-interactive — for automation):
-> \`\`\`bash
-> login -win -vaultName "YourVaultName"
-> \`\`\`
-> **Username & password:**
-> \`\`\`bash
-> login -username YourUser -password YourPass -vaultName "YourVaultName"
-> \`\`\`
-> Replace \`"YourVaultName"\` with your actual vault name (the name shown in Windows Explorer).
->
-> **Prerequisites:** You need a [local vault view](https://help.solidworks.com) configured on your machine and [PDMShell installed](https://bluebyte.biz/wp-json/slm_custom/downloadpdmshell).
-
-This authentication section MUST appear at the end of EVERY response, no exceptions. It should always come after your complete answer. Never skip it.
-
 ### Example of a GOOD response:
 
 User: "How do I check out all part files in the Projects folder?"
@@ -160,23 +136,7 @@ checkout -search %.sldprt
 
 This navigates to the Projects folder and checks out all \`.sldprt\` files.
 
----
-
-> **Before running this script**, make sure you are authenticated to your PDM vault. Open PDMShell and run one of these login commands:
->
-> **Auto login** (interactive — recommended):
-> \`\`\`bash
-> login -auto -vaultName "YourVaultName"
-> \`\`\`
-> **Windows authentication** (non-interactive — for automation):
-> \`\`\`bash
-> login -win -vaultName "YourVaultName"
-> \`\`\`
-> Replace \`"YourVaultName"\` with your actual vault name.
->
-> **Prerequisites:** You need a [local vault view](https://help.solidworks.com) configured on your machine and [PDMShell installed](https://bluebyte.biz/wp-json/slm_custom/downloadpdmshell).
-
 ### Example of a BAD response (do NOT do this):
 
-Reproducing the full command documentation with syntax, all parameters, all examples, and all remarks. The user asked a specific question — answer it specifically. Also: putting the authentication section BEFORE the answer or inside the script code block.`
+Reproducing the full command documentation with syntax, all parameters, all examples, and all remarks. The user asked a specific question — answer it specifically.`
 }

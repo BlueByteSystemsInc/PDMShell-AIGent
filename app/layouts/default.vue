@@ -72,46 +72,33 @@ const items = computed(() => groups.value?.flatMap((group) => {
 
 const hasChats = computed(() => items.value && items.value.length > 0)
 
-const user = {
-  name: 'User',
-  initials: 'U'
-}
-
-const userMenuItems = computed<DropdownMenuItem[][]>(() => ([[{
-  type: 'label',
-  label: user.name,
-  icon: 'i-lucide-user'
-}], [{
-  label: 'Appearance',
-  icon: colorMode.value === 'dark' ? 'i-lucide-moon' : 'i-lucide-sun',
-  children: [{
-    label: 'System',
-    icon: 'i-lucide-monitor',
-    type: 'checkbox',
-    checked: colorMode.preference === 'system',
-    onSelect(e: Event) {
-      e.preventDefault()
-      colorMode.preference = 'system'
-    }
-  }, {
-    label: 'Light',
-    icon: 'i-lucide-sun',
-    type: 'checkbox',
-    checked: colorMode.preference === 'light',
-    onSelect(e: Event) {
-      e.preventDefault()
-      colorMode.preference = 'light'
-    }
-  }, {
-    label: 'Dark',
-    icon: 'i-lucide-moon',
-    type: 'checkbox',
-    checked: colorMode.preference === 'dark',
-    onSelect(e: Event) {
-      e.preventDefault()
-      colorMode.preference = 'dark'
-    }
-  }]
+const appearanceItems = computed<DropdownMenuItem[][]>(() => ([[{
+  label: 'System',
+  icon: 'i-lucide-monitor',
+  type: 'checkbox',
+  checked: colorMode.preference === 'system',
+  onSelect(e: Event) {
+    e.preventDefault()
+    colorMode.preference = 'system'
+  }
+}, {
+  label: 'Light',
+  icon: 'i-lucide-sun',
+  type: 'checkbox',
+  checked: colorMode.preference === 'light',
+  onSelect(e: Event) {
+    e.preventDefault()
+    colorMode.preference = 'light'
+  }
+}, {
+  label: 'Dark',
+  icon: 'i-lucide-moon',
+  type: 'checkbox',
+  checked: colorMode.preference === 'dark',
+  onSelect(e: Event) {
+    e.preventDefault()
+    colorMode.preference = 'dark'
+  }
 }]]))
 
 async function deleteChat(id: string) {
@@ -240,26 +227,19 @@ defineShortcuts({
 
       <template #footer="{ collapsed }">
         <UDropdownMenu
-          :items="userMenuItems"
+          :items="appearanceItems"
           :content="{ align: 'center', collisionPadding: 12 }"
           :ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }"
         >
           <UButton
-            :label="collapsed ? undefined : user.name"
-            :trailing-icon="collapsed ? undefined : 'i-lucide-chevrons-up-down'"
+            :label="collapsed ? undefined : 'Appearance'"
+            :icon="colorMode.value === 'dark' ? 'i-lucide-moon' : 'i-lucide-sun'"
             color="neutral"
             variant="ghost"
             block
             :square="collapsed"
             class="data-[state=open]:bg-elevated"
-            :ui="{ trailingIcon: 'text-dimmed' }"
-          >
-            <template #leading>
-              <span class="inline-flex items-center justify-center size-6 rounded-full bg-primary/15 text-primary text-xs font-semibold shrink-0">
-                {{ collapsed ? user.initials[0] : user.initials }}
-              </span>
-            </template>
-          </UButton>
+          />
         </UDropdownMenu>
       </template>
     </UDashboardSidebar>
