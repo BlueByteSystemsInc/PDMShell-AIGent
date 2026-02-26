@@ -156,12 +156,6 @@ export default defineEventHandler(async (event) => {
           })
         }
       }
-
-      // Emit quota state to client
-      writer.write({
-        type: 'data-quota',
-        data: getQuotaState(sessionId)
-      })
     },
     onFinish: async ({ messages }) => {
       const validRoles = new Set(['user', 'assistant'])

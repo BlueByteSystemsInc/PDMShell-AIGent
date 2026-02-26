@@ -33,12 +33,6 @@ const { data: chats, status: chatsStatus, refresh: _refreshChats } = useLazyFetc
   }))
 })
 
-// Fetch quota once at app level — pages share via useState
-const { fetchQuota } = useQuota()
-onMounted(() => {
-  fetchQuota()
-})
-
 // Preload first 5 chats for faster navigation (runs once)
 let preloaded = false
 onNuxtReady(async () => {

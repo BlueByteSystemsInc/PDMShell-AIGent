@@ -5,7 +5,6 @@ import { DefaultChatTransport } from 'ai'
 import type { UIMessage } from 'ai'
 import { useClipboard, useTimeoutFn } from '@vueuse/core'
 import { getTextFromMessage } from '@nuxt/ui/utils/ai'
-import type { QuotaState } from '../../composables/useQuota'
 import ProseStreamPre from '../../components/prose/PreStream.vue'
 import ProseA from '../../components/prose/ProseA.vue'
 
@@ -120,8 +119,6 @@ function collectBody(firstLine: string | undefined, rest: string | undefined, st
 const route = useRoute()
 const toast = useToast()
 const clipboard = useClipboard()
-const { quota, updateFromStreamData } = useQuota()
-
 const { data, refresh: refreshChat } = await useFetch(`/api/chats/${route.params.id}`, {
   key: `chat-${route.params.id}`
 })
@@ -144,9 +141,6 @@ const chat = new Chat({
     if (dataPart.type === 'data-chat-title') {
       refreshNuxtData('chats')
       refreshChat()
-    }
-    if (dataPart.type === 'data-quota') {
-      updateFromStreamData(dataPart.data as QuotaState)
     }
   },
   onError(error) {
@@ -297,15 +291,11 @@ onMounted(() => {
           @submit="handleSubmit"
         >
           <template #footer>
-            <div class="flex items-center gap-1.5">
-              <QuotaPanel :quota="quota" />
-              <template v-if="chat.status === 'submitted' || chat.status === 'streaming'">
-                <span class="text-dimmed/40">·</span>
-                <span class="inline-flex items-center gap-1 text-xs text-primary">
-                  <UIcon name="i-lucide-loader" class="size-3.5 animate-spin" />
-                  <span>{{ chat.status === 'submitted' ? 'Thinking...' : 'Generating...' }}</span>
-                </span>
-              </template>
+            <div v-if="chat.status === 'submitted' || chat.status === 'streaming'" class="flex items-center gap-1.5">
+              <span class="inline-flex items-center gap-1 text-xs text-primary">
+                <UIcon name="i-lucide-loader" class="size-3.5 animate-spin" />
+                <span>{{ chat.status === 'submitted' ? 'Thinking...' : 'Generating...' }}</span>
+              </span>
             </div>
 
             <UChatPromptSubmit

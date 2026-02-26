@@ -1,8 +1,6 @@
 <script setup lang="ts">
 // No title set — falls through to titleTemplate default: "PDMShell Assistant"
 
-const { quota } = useQuota()
-
 const toast = useToast()
 const input = ref('')
 const loading = ref(false)
@@ -104,8 +102,6 @@ const quickChats = [
           @submit="onSubmit"
         >
           <template #footer>
-            <QuotaPanel :quota="quota" />
-
             <UChatPromptSubmit
               :status="loading ? 'streaming' : 'ready'"
               color="neutral"
