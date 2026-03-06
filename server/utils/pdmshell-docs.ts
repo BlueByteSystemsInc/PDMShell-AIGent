@@ -31,6 +31,17 @@ export const pdmshellDocs: DocChunk[] = [
     "category": "search"
   },
   {
+    "id": "allpartnumbersandescriptions",
+    "title": "\"SQL Example",
+    "content": "Retrieving File Metadata from SOLIDWORKS PDM\n\nThe following SQL query extracts metadata from a SOLIDWORKS PDM vault database. It returns file information including folder path, workflow state, configuration, and variable values such as **Drawing No** and **Description**.\n\nThis type of query is useful when building **reports, migrations, or integrations used with PDMShell automation**.\n\nChange `bluebyte` with your vault name to run the query below:\n\nSELECT \n    D.DocumentID,\n    P.ProjectID  AS [Folder], \n    P.Path  AS [Relative Path], \n    P.Name AS [Folder Name],\n    D.Filename, \n    C.ConfigurationName AS [Configuration],\n    S.Name AS [State],\n    V1.ValueText AS [Drawing No], \n    V2.ValueText AS [Description],\n    D.LatestRevisionNo AS [Latest Version]\nFROM [bluebyte].[dbo].[Documents] D\nLEFT JOIN [bluebyte].[dbo].[Status] S ON D.CurrentStatusID = S.StatusID\nLEFT JOIN [bluebyte].[dbo].[DocumentsInProjects] PD ON D.DocumentID = PD.DocumentID\nLEFT JOIN [bluebyte].[dbo].[Projects] P ON PD.ProjectID = P.ProjectID\nCROSS JOIN [bluebyte].[dbo].[DocumentConfiguration] C \nLEFT JOIN [bluebyte].[dbo].[VariableValue] V1 ON V1.DocumentID = D.DocumentID \n    AND V1.ConfigurationID = C.ConfigurationID\n    AND V1.RevisionNo = D.LatestRevisionNo\n    AND V1.VariableID = (SELECT VariableID FROM [bluebyte].[dbo].[Variable] WHERE VariableName = 'Drawing No')\nLEFT JOIN [bluebyte].[dbo].[VariableValue] V2 ON V2.DocumentID = D.DocumentID \n    AND V2.ConfigurationID = C.ConfigurationID\n    AND V2.RevisionNo = D.LatestRevisionNo\n    AND V2.VariableID = (SELECT VariableID FROM [bluebyte].[dbo].[Variable] WHERE VariableName = 'Description')\nWHERE (D.Filename LIKE '%.sldprt' OR D.Filename LIKE '%.sldasm' OR D.Filename LIKE '%.slddrw')\n  AND D.Deleted = 0\n  AND C.ConfigurationName = '@';\n\nOutput\n\n![sqloutput](/images/sqloutput.png)\n\nNotes\n\nSQL queries can be more efficient than the PDM Search API when exporting 1000+ results (reporting / migrations / integrations).\nUse this approach for read-only extraction. Do not write to the PDM database directly.",
+    "keywords": [
+      "allpartnumbersandescriptions",
+      "sql",
+      "example"
+    ],
+    "category": "general"
+  },
+  {
     "id": "bom",
     "title": "BOM Command",
     "content": "DESCRIPTION:\n\nThe `BOMCommand` allows you to extract a Bill of Materials from a SOLIDWORKS file inside the PDM vault and export it to a CSV file.  \nThis command supports configuration evaluation using **$configuration**, allows specifying **configNames**, and supports selecting a **layout** from all available BOM layouts.\n\nSYNTAX:\n\nbom -filePath -name -directory -configNames -layout\n\nPARAMETERS:\n\n- `filePath`  \n  Path to the SOLIDWORKS file whose BOM you want to export.\n\n- `name`  \n  The base name for the exported CSV file.  \n  Supports evaluation (e.g., `$configuration`).  \n  [More information here](EVAL.md).\n\n- `directory`  \n  Target folder where the CSV will be saved.\n\n- `configNames`  \n  Comma-separated list of configurations to extract the BOM from. If unspecified, all configurations are processed. \n  Example: `@,Default,Manufacturing`.\n\n- `layout`  \n  A comma-separated list of BOM layout names to export.  \n  Example: `Engineering,Manufacturing`.  \n  PDMShell validates layout names against PDM before exporting.",
@@ -109,26 +120,6 @@ export const pdmshellDocs: DocChunk[] = [
     "content": "DESCRIPTION:\nThe `copytree` command is used to copy files and their associated metadata from a source directory or search results, with options to apply prefixes, suffixes, and other filters. This only works with assembly files.\n\nSYNTAX:\n\ncopytree [-search|-filePath] -suffix -prefix -recursive -includedrawings -latest -directory\n\nPARAMETERS:\n- `-filePath`: The source file or directory to copy.  \n- `-directory`: Specifies the target directory where the files will be copied.  \n- `-search`: A search query to filter files to be copied.  \n- `-suffix`: Adds a suffix to the copied files.  \n- `-prefix`:  Adds a prefix to the copied files.  \n- `-recursive`: Copies files recursively from subdirectories.  \n- `-includedrawings`: Includes associated drawing files in the copy operation.  \n- `-latest`: Ensures the latest version of the files is copied.\n\nEXAMPLES:\n ```bash\n   copytree -filePath \"fidget spinner.sldasm\" -suffix _ -directory \"\\new project\" #copies the fidget spinner to new project folder with suffix _\n   copytree -search \"*.sldasm\" -includedrawings -directory \"c:\\export\" #copies all assemblies in current directory to the export under c drive\n   ```\n\nREMARKS:\n- The `-dir` parameter specifies the target directory. If omitted, the current directory is used.\n- Use the `-recursive` parameter to include all subdirectories in the operation.\n- The `-includedrawings` parameter ensures that associated drawing files are included in the copy.\n- The `-latest` parameter ensures that only the latest versions of files are copied.",
     "keywords": [
       "copytree"
-    ],
-    "category": "file-management"
-  },
-  {
-    "id": "delete",
-    "title": "delete all parts in the current directory",
-    "content": "# DELETE Command Documentation\n\nDESCRIPTION:\nThe `delete` command is used to delete files or directories from the PDM system. It supports various parameters to specify the target files or directories, including file paths, directory paths, search queries, and IDs. The command also supports recursive deletion for directories.\n\nSYNTAX:\n\ndelete [-filePath|-id] -directory -search -recursive -list -csv\n\nPARAMETERS:\n\n- `filePath`:\n(Optional) Specifies the file path of the file to be deleted.\n\n- `directory`: \n(Optional) Specifies the directory to be deleted. If used with the -recursive parameter, all files and subdirectories within the directory will also be deleted.\n\n- `search`:\n(Optional) A search query to filter files or directories to be deleted.\n\n- `id`:\n(Optional) Specifies the ID of the file to be deleted.\n\n- `recursive`:\n(Optional) Deletes all files and subdirectories within the specified directory. This parameter is only applicable when deleting directories.\n\n- `list`:\n(Optional) Lists all the deleted files. Specifying `recursive` with this parameter will do a drill down search and fetch all deleted files.\n\n- `csv`: Exports a list of deleted files to a csv. This only works if `list is specified`. \n\n- `destroy`: If specified, the deleted file will be also destroyed. `-destroy` only affects results from the `search` parameter.\n\nUse the exported csv from -csv with the [recover](RECOVER.html) command.\n\n `-destroy` only affects results from the `search` parameter. \n\nEXAMPLES:\nDelete files matching a search query:\n\ndelete -search \"%.sldprt\"\n\nREMARKS:\n- The delete command requires at least one of the following parameters: `filePath`, `dir`, `search`, or `id`.\n- Use the `recursive` parameter with caution, as it will delete all contents within the specified directory.\n- Ensure you have the necessary permissions to delete files or directories in the PDM system.\n\nTUTORIAL:\n <video src=\"https://bluebyte.biz/wp-content/pdmshellvideos/delete.mp4\" autoplay muted controls style=\"width: 100%; border-radius: 12px;\"></video>",
-    "keywords": [
-      "delete",
-      "all",
-      "parts",
-      "current",
-      "directory",
-      "filepath",
-      "search",
-      "id",
-      "recursive",
-      "list",
-      "csv",
-      "destroy"
     ],
     "category": "file-management"
   },
@@ -759,10 +750,11 @@ export const pdmshellDocs: DocChunk[] = [
   {
     "id": "setvarsfromsource",
     "title": "SETVARSFROMSOURCE Command",
-    "content": "DESCRIPTION:\nSets variables for multiple files using a CSV file as the source.\n\nSYNTAX:\n\nsetvarsfromsource -source\n\nPARAMETERS:\n-`source`: The CSV file containing the file IDs and variable values.\n\nCSV FILE FORMAT:\nThe CSV file should have the following format:\n\nFileID,Variable1,Variable2,... \nXXXX,Value1,Value2,... \nXXXX,Value1,Value2,...\n\nEXAMPLES:\n\nsetvarsfromsource -source variables.csv # the source file must be exist in the current directory\n\nREMARKS:\n- The CSV file should have the first column as the file ID and the subsequent columns as the variable names.\n- You need to include the extension in the filename. This file can be outside the vault.\n- The best way to generate a source CSV is to use the `dir` command or the `search` command on a folder with the `-csv` parameter and the `columns`, like:\n\ndir -columns Description,\"Part Number\" -csv data.csv\nsearch -search %.sldprt -recursive -columns Description,\"Part Number\" -csv data.csv #this will save all parts from all levels in the current directory with the columns Description and Part Number\n\nTUTORIAL:\n <video src=\"https://bluebyte.biz/wp-content/pdmshellvideos/setvarsfromsource.mp4\" autoplay muted controls style=\"width: 100%; border-radius: 12px;\"></video>",
+    "content": "DESCRIPTION:\nSets variables for multiple files using a CSV file as the source.\n\nSYNTAX:\n\nsetvarsfromsource -source -evaluatealias\n\nPARAMETERS:\n-`source`: The CSV file containing the file IDs and variable values.\n-`evaluatealias`: See dynamic placeholder article for more details.\n\nCSV FILE FORMAT:\nThe CSV file should have the following format:\n\nFileID,Variable1,Variable2,... \nXXXX,Value1,Value2,... \nXXXX,Value1,Value2,...\n\nEXAMPLES:\n\nsetvarsfromsource -source variables.csv # the source file must be exist in the current directory\n\nREMARKS:\n- The CSV file should have the first column as the file ID and the subsequent columns as the variable names.\n- You need to include the extension in the filename. This file can be outside the vault.\n- The best way to generate a source CSV is to use the `dir` command or the `search` command on a folder with the `-csv` parameter and the `columns`, like:\n\ndir -columns Description,\"Part Number\" -csv data.csv\nsearch -search %.sldprt -recursive -columns Description,\"Part Number\" -csv data.csv #this will save all parts from all levels in the current directory with the columns Description and Part Number\n\nTUTORIAL:\n <video src=\"https://bluebyte.biz/wp-content/pdmshellvideos/setvarsfromsource.mp4\" autoplay muted controls style=\"width: 100%; border-radius: 12px;\"></video>",
     "keywords": [
       "setvarsfromsource",
-      "source"
+      "source",
+      "evaluatealias"
     ],
     "category": "variables"
   },
@@ -793,6 +785,16 @@ export const pdmshellDocs: DocChunk[] = [
       "task"
     ],
     "category": "scripting"
+  },
+  {
+    "id": "testimonials",
+    "title": "PDMShell Testimonials",
+    "content": "**“Your website is very user-friendly. The tutorials are very easy to follow, and it only took me about 10 minutes to update variables from a CSV using the `setvarfromsource` command. Very well done!”**\n— PDMShell User",
+    "keywords": [
+      "testimonials",
+      "pdmshell"
+    ],
+    "category": "general"
   },
   {
     "id": "transition",
