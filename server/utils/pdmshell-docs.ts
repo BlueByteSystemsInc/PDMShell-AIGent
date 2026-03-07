@@ -124,6 +124,26 @@ export const pdmshellDocs: DocChunk[] = [
     "category": "file-management"
   },
   {
+    "id": "delete",
+    "title": "delete all parts in the current directory",
+    "content": "# DELETE Command Documentation\n\nDESCRIPTION:\nThe `delete` command is used to delete files or directories from the PDM system. It supports various parameters to specify the target files or directories, including file paths, directory paths, search queries, and IDs. The command also supports recursive deletion for directories.\n\nSYNTAX:\n\ndelete [-filePath|-id] -directory -search -recursive -list -csv\n\nPARAMETERS:\n\n- `filePath`:\n(Optional) Specifies the file path of the file to be deleted.\n\n- `directory`: \n(Optional) Specifies the directory to be deleted. If used with the -recursive parameter, all files and subdirectories within the directory will also be deleted.\n\n- `search`:\n(Optional) A search query to filter files or directories to be deleted.\n\n- `id`:\n(Optional) Specifies the ID of the file to be deleted.\n\n- `recursive`:\n(Optional) Deletes all files and subdirectories within the specified directory. This parameter is only applicable when deleting directories.\n\n- `list`:\n(Optional) Lists all the deleted files. Specifying `recursive` with this parameter will do a drill down search and fetch all deleted files.\n\n- `csv`: Exports a list of deleted files to a csv. This only works if `list is specified`. \n\n- `destroy`: If specified, the deleted file will be also destroyed. `-destroy` only affects results from the `search` parameter.\n\nUse the exported csv from -csv with the [recover](RECOVER.html) command.\n\n `-destroy` only affects results from the `search` parameter. \n\nEXAMPLES:\nDelete files matching a search query:\n\ndelete -search \"%.sldprt\"\n\nREMARKS:\n- The delete command requires at least one of the following parameters: `filePath`, `dir`, `search`, or `id`.\n- Use the `recursive` parameter with caution, as it will delete all contents within the specified directory.\n- Ensure you have the necessary permissions to delete files or directories in the PDM system.\n\nTUTORIAL:\n <video src=\"https://bluebyte.biz/wp-content/pdmshellvideos/delete.mp4\" autoplay muted controls style=\"width: 100%; border-radius: 12px;\"></video>",
+    "keywords": [
+      "delete",
+      "all",
+      "parts",
+      "current",
+      "directory",
+      "filepath",
+      "search",
+      "id",
+      "recursive",
+      "list",
+      "csv",
+      "destroy"
+    ],
+    "category": "file-management"
+  },
+  {
     "id": "deletefromsource",
     "title": "DELETEFROMSOURCE Command",
     "content": "DESCRIPTION:\n\nThe `deletefromsource` command deletes files listed in a CSV file. It can also optionally destroy the files and export the operation results to a CSV file for auditing and reporting purposes.\n\nSYNTAX:\n\n    deletefromsource -filePath -destroy -csv -batch\n\nPARAMETERS:\n\n| Parameter | Type | Required | Description |\n|---|---|---|---|\n| `filePath` | string | Yes | Path to the source CSV file containing File IDs and Folder IDs. |\n| `destroy` | flag | No | If specified, files will be permanently destroyed after deletion. |\n| `csv` | string | No | Path to export the results CSV file. |\n| `batch` | int | No | Destory batch size for large folders. |\nSOURCE CSV FORMAT:\n\nThe source CSV file must contain a header row with the following columns:\n\nFileID,FolderID\n12345,678\n12346,678\n\n| Column | Description |\n|---|---|\n| FileID | The document ID of the file |\n| FolderID | The folder ID containing the file |\n\nRESULTS CSV FORMAT:\n\nIf `-csv` is specified, PDMShell will generate a results file containing:\n\nFileID,FolderID,Deleted,Destroyed,DeleteError,DestroyError\n12345,678,True,True,,\n12346,678,False,False,File is checked out,\n\nRESULTS CSV COLUMNS:\n\n| Column | Description |\n|---|---|\n| FileID | File ID |\n| FolderID | Folder ID |\n| Deleted | Whether delete succeeded |\n| Destroyed | Whether destroy succeeded |\n| DeleteError | Delete error message if failed |\n| DestroyError | Destroy error message if failed |\n\nREMARKS:\n\n- The source file **must be a CSV file with a header row**.\n\nEXAMPLES:\n\nDelete files from CSV:\ndeletefromsource -filePath \"files to delete.csv\"\n\n##Delete and destroy files:\ndeletefromsource -filePath \"files to delete.csv\" -destroy\n\nDelete, destroy, and export results:\ndeletefromsource -filePath \"files to delete.csv\" -destroy -csv \"results.csv\"\n\nDelete, destroy (50 files at a time in each folder), and export results:\ndeletefromsource -filePath \"files to delete.csv\" -destroy -csv \"results.csv\" -batch 50",
